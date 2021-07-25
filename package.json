@@ -9,7 +9,8 @@
   ],
   "scripts": {
     "start": "node index.js",
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "watch": "rollup -cw"
   },
   "bin": {
     "mn": "dist/index.js"

@@ -2,18 +2,18 @@ import fs from 'fs';
 import express from 'express';
 import https from "https";
 import cors from "cors";
+import { Command } from 'commander';
 
 interface Options {
     port: number;
-    pfx: string;
     passphrase: string;
 }
 
-export function serveCommand(dir: string, opt: Options) {
+export function serveAction(dir: string, pfx: string, opt: Options) {
     const app = express();
 
     const options = {
-        pfx: fs.readFileSync(opt.pfx),
+        pfx: fs.readFileSync(pfx),
         passphrase: opt.passphrase
     };
 
@@ -24,3 +24,11 @@ export function serveCommand(dir: string, opt: Options) {
     
     const server = https.createServer(options, app).listen(opt.port);
 };
+
+export const serveCommand = new Command('serve')
+.argument("dir", "Primno directory")
+.argument('pfx', 'PFX certificate file')
+.description('Serve the primno library directory')
+    .option('-p, --port <number>', 'Port', '12357')
+    .option('-pwd, --passphrase <passphrase>', 'PFX passphrase')
+.action(serveAction);
