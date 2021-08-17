@@ -9,7 +9,7 @@ interface Options {
     passphrase: string;
 }
 
-export function serveAction(dir: string, pfx: string, opt: Options) {
+function serveAction(dir: string, pfx: string, opt: Options) {
     const app = express();
 
     const options = {
@@ -17,18 +17,20 @@ export function serveAction(dir: string, pfx: string, opt: Options) {
         passphrase: opt.passphrase
     };
 
-    console.log(`Primno serve ${dir} directory and port ${opt.port}`);
+    console.log(`Primno serve ${dir} directory on port ${opt.port}`);
 
     app.use(cors());
     app.use(express.static(dir));
-    
-    const server = https.createServer(options, app).listen(opt.port);
+
+    const server = https
+        .createServer(options, app)
+        .listen(opt.port);
 };
 
 export const serveCommand = new Command('serve')
-.argument("dir", "Primno directory")
-.argument('pfx', 'PFX certificate file')
-.description('Serve the primno library directory')
+    .argument("dir", "directory of primno project")
+    .argument('pfx', 'pfx certificate file')
+    .description('serve the primno library directory')
     .option('-p, --port <number>', 'Port', '12357')
-    .option('-pwd, --passphrase <passphrase>', 'PFX passphrase')
-.action(serveAction);
+    .option('-pwd, --passphrase <passphrase>', 'pfx passphrase')
+    .action(serveAction);

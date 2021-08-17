@@ -5,6 +5,6 @@ function newAction(projectName: string) {
 };
 
 export const newCommand = new Command('new')
-.argument('name', 'Project name')
-.description('Create a new Primno project')
+    .argument('name', 'Project name')
+    .description('Create a new Primno project')
     .action(newAction);
