@@ -1,10 +1,16 @@
 import { Command } from 'commander';
+import { Workspace } from '../core/workspace';
 
 function newAction(projectName: string) {
-    console.log(`Create new ${projectName} project`);
+    try {
+        Workspace.create(".", projectName);
+    }
+    catch (except) {
+        console.error(except.message);
+    }
 };
 
 export const newCommand = new Command('new')
-    .argument('name', 'Project name')
-    .description('Create a new Primno project')
+    .argument('<name>', 'project name')
+    .description('create a new primno project')
     .action(newAction);

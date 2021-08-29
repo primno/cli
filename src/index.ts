@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import figlet from "figlet";
 import { program } from 'commander';
-import { serveCommand, newCommand } from './commands';
+import { serveCommand, newCommand, buildCommand, watchCommand } from './commands';
 
 console.log(
     chalk.blue(figlet.textSync("Primno CLI"))
@@ -10,4 +10,6 @@ console.log(
 program.version('1.0.0')
     .addCommand(serveCommand)
     .addCommand(newCommand)
-    .parse(process.argv);
+    .addCommand(buildCommand)
+    .addCommand(watchCommand)
+    .parseAsync(process.argv);

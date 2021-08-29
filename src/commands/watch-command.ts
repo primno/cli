@@ -1,16 +1,16 @@
 import { Command } from 'commander';
 import { Workspace } from '../core/workspace';
 
-async function serveAction() {
+async function watchAction(entryPoint?: string) {
     if (!Workspace.isWorkspace(".")) {
         console.error("This action must be run in a primno project directory");
-        return;
     }
 
     const currentWs = new Workspace(".");
-    currentWs.serve();
+    await currentWs.watch(entryPoint);
 };
 
-export const serveCommand = new Command('serve')
-    .description('serve the primno library directory')
-    .action(serveAction);
+export const watchCommand = new Command('watch')
+    .argument('[entrypoint]', 'entrypoint to watch')
+    .description('watch project')
+    .action(watchAction);

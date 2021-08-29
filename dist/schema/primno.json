@@ -1,0 +1,120 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$ref": "#/definitions/primno",
+    "definitions": {
+        "primno": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+				"$schema": {
+					"type": "string",
+					"format": "uri"
+				},
+                "name": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                },
+                "sourceRoot": {
+                    "type": "string"
+                },
+                "entryPointDir": {
+                    "type": "string"
+                },
+                "distDir": {
+                    "type": "string"
+                },
+                "serve": {
+                    "$ref": "#/definitions/Serve"
+                },
+                "build": {
+                    "$ref": "#/definitions/Build"
+                },
+                "environnement": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Environnement"
+                    }
+                }
+            },
+            "required": [
+                "build",
+                "distDir",
+                "entryPointDir",
+                "environnement",
+                "name",
+                "serve",
+                "sourceRoot",
+                "version"
+            ],
+            "title": "Welcome9"
+        },
+        "Build": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "environnement": {
+                    "type": "string"
+                },
+                "entryPoint": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "entryPoint",
+                "environnement"
+            ],
+            "title": "Build"
+        },
+        "Environnement": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "production": {
+                    "type": "boolean"
+                },
+                "connectionString": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "connectionString",
+                "name",
+                "production"
+            ],
+            "title": "Environnement"
+        },
+        "Serve": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "https": {
+                    "type": "boolean"
+                },
+                "port": {
+                    "type": "integer"
+                },
+                "pfx": {
+                    "type": "string"
+                },
+                "pfxPassword": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "https",
+                "pfx",
+                "pfxPassword",
+                "port"
+            ],
+            "title": "Serve"
+        }
+    }
+}

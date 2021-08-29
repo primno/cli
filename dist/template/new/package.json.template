@@ -1,0 +1,10 @@
+{
+  "devDependencies": {},
+  "name": "{{ name }}",
+  "scripts": {
+    "bundle": "mn build",
+    "start": "mn serve",
+    "watch": "mn watch"
+  },
+  "dependencies": {}
+}
