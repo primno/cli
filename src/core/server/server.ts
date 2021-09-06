@@ -1,14 +1,18 @@
 import cors from "cors";
 import express from "express";
 import fs from "fs";
-import { Serve } from "../configuration/configuration";
+import { Serve } from "../../configuration/configuration";
 import https from "https";
-import { isNullOrUndefined } from "../utils/common";
+import { isNullOrUndefined } from "../../utils/common";
+import path from "path";
+import { getCertificate } from "./self-signed-cert";
+//import selfSigned from "selfsigned";
+const selfSigned = require("selfsigned");
 
 export class Server {
     private server: any;
 
-    public constructor(private config: Serve) {}
+    public constructor(private config: Serve) { }
 
     public serve(directory: string) {
         if (!isNullOrUndefined(this.server)) {
@@ -22,9 +26,11 @@ export class Server {
         app.use(express.static(directory));
 
         if (this.config?.https) {
+            const cert = getCertificate();
+            
             const options = {
-                pfx: fs.readFileSync(this.config?.pfx as string),
-                passphrase: this.config?.pfxPassword
+                key: cert,
+                cert: cert
             };
 
             this.server = https

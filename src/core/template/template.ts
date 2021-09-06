@@ -1,7 +1,7 @@
 import fs from 'fs';
 import Mustache from 'mustache';
 import path from 'path';
-import { Configuration } from '../configuration/configuration';
+import { Configuration } from '../../configuration/configuration';
 
 enum EntryType {
     directory,

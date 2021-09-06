@@ -1,7 +1,7 @@
 export interface Environnement {
     name: string;
     production: boolean;
-    connectionString: string;
+    connectionString?: string;
 }
 
 export interface Build {
@@ -41,5 +41,14 @@ export const defaultConfig: Configuration = {
     serve: {
         https: false,
         port: 12357
+    },
+    environnement: [
+        {
+            name: "dev",
+            production: false,
+        }
+    ],
+    build: {
+        environnement: "dev"
     }
 };

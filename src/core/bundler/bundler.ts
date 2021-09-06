@@ -1,9 +1,9 @@
-import { Configuration } from "../configuration/configuration";
+import { Configuration } from "../../configuration/configuration";
 import { InputOptions, OutputOptions, rollup, watch } from "rollup";
 import nodeResolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import typescript from "@rollup/plugin-typescript";
-import { getPackageJson } from "./package";
+import { getPackageJson } from "../../utils/package";
 
 export class Bundler {
     private rollupInput: InputOptions;

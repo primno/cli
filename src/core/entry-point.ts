@@ -1,4 +1,4 @@
-import { Bundler } from "./bundler";
+import { Bundler } from "./bundler/bundler";
 import path from "path";
 import glob from "glob";
 

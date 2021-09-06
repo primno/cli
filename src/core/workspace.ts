@@ -1,11 +1,12 @@
 import fs from "fs";
 import path from "path";
 import { Configuration, defaultConfig, Serve } from "../configuration/configuration";
-import { Template } from "./template";
+import { Template } from "./template/template";
 import { isNullOrUndefined, mergeDeep } from "../utils/common";
 import { EntryPoint } from "./entry-point";
-import { Npm } from "./npm";
-import { Server } from "./server";
+import { Npm } from "../utils/npm";
+import { Server } from "./server/server";
+import { Deployer } from "./deployer/deployer";
 
 export class Workspace {
     private _config: Configuration;
@@ -40,6 +41,11 @@ export class Workspace {
     public generate(templateName: string, name: string) {
         /*const template = new Template(templateName);
         template.applyTo(this.dirPath, this.config);*/
+    }
+
+    public async deploy() {
+        const deployer = new Deployer();
+        await deployer.deploy();
     }
 
     public async watch(entryPoint?: string | string[]) {

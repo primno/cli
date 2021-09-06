@@ -5,7 +5,7 @@ function newAction(projectName: string) {
     try {
         Workspace.create(".", projectName);
     }
-    catch (except) {
+    catch (except: any) {
         console.error(except.message);
     }
 };

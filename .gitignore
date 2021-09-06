@@ -339,7 +339,11 @@ ASALocalRun/
 # BeatPulse healthcheck temp database
 healthchecksdb
 
+#VsCode
+.vscode/
+
 # Primno
 dist/tsc.js
 build
 .nyc_output
+

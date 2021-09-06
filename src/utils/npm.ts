@@ -1,5 +1,4 @@
 import { spawnSync } from "child_process";
-import { isNullOrUndefined } from "../utils/common";
 
 const npmCommandLine = "npm";
 

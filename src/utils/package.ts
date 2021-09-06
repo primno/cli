@@ -1,4 +1,4 @@
-import { isNullOrUndefined } from "../utils/common";
+import { isNullOrUndefined } from "./common";
 import fs from "fs";
 
 let packageJson: any | undefined;
