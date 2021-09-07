@@ -2,7 +2,7 @@ import path from "path";
 import fs from "fs";
 const selfSigned = require("selfsigned");
 
-const daysValidity = 1;
+const daysValidity = 30;
 
 function createCertificate() {
   const attrs = [{

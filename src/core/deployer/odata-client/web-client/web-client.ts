@@ -14,12 +14,13 @@ export interface Authentication {
 
 export interface Options {
     authentication: Authentication;
+    headers: Record<string, string>;
 }
 
 export class WebClient {
     private axiosConfig: AxiosRequestConfig;
 
-    public constructor(private baseUrl: string, private authentication: Authentication) {
+    public constructor(private baseUrl: string, private options: Options) {
         this.axiosConfig = {
             baseURL: this.baseUrl,
             httpsAgent: new https.Agent({
@@ -28,7 +29,8 @@ export class WebClient {
             }),
             httpAgent: new http.Agent({
                 keepAlive: true
-            })
+            }),
+            headers: options.headers
         };
     }
 
@@ -47,13 +49,13 @@ export class WebClient {
     private createClient(): AxiosInstance {
         let client: AxiosInstance;
 
-        switch (this.authentication.type) {
+        switch (this.options.authentication.type) {
             case "ntlm":
                 {
                     const credentials: NtlmCredentials = {
-                        username: this.authentication.username,
-                        password: this.authentication.password,
-                        domain: this.authentication.domain,
+                        username: this.options.authentication.username,
+                        password: this.options.authentication.password,
+                        domain: this.options.authentication.domain,
                     };
 
                     client = NtlmClient(credentials, this.axiosConfig);
@@ -74,6 +76,21 @@ export class WebClient {
 
     public async put(url: string, data?: any) {
         const client = this.createClient();
-        client.put(url, data);
+        return client.put(url, data);
+    }
+
+    public async patch(url: string, data?: any) {
+        const client = this.createClient();
+        return client.patch(url, data);
+    }
+
+    public async post(url: string, data?: any) {
+        const client = this.createClient();
+        return client.post(url, data);
+    }
+
+    public async delete(url: string) {
+        const client = this.createClient();
+        return client.delete(url);
     }
 }

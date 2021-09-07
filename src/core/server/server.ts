@@ -1,13 +1,9 @@
 import cors from "cors";
 import express from "express";
-import fs from "fs";
 import { Serve } from "../../configuration/configuration";
 import https from "https";
 import { isNullOrUndefined } from "../../utils/common";
-import path from "path";
 import { getCertificate } from "./self-signed-cert";
-//import selfSigned from "selfsigned";
-const selfSigned = require("selfsigned");
 
 export class Server {
     private server: any;
