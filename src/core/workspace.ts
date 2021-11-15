@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { Configuration, defaultConfig, Serve } from "../configuration/configuration";
+import { Configuration, defaultConfig, Deploy, Serve } from "../configuration/configuration";
 import { Template } from "./template/template";
 import { isNullOrUndefined, mergeDeep } from "../utils/common";
 import { EntryPoint } from "./entry-point";
@@ -44,7 +44,7 @@ export class Workspace {
     }
 
     public async deploy() {
-        const deployer = new Deployer();
+        const deployer = new Deployer(this.config.deploy as Deploy, this.config.environnement);
         await deployer.deploy();
     }
 

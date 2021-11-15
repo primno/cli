@@ -1,9 +1,10 @@
 import cors from "cors";
 import express from "express";
 import { Serve } from "../../configuration/configuration";
-import https from "https";
+import https, { ServerOptions } from "https";
 import { isNullOrUndefined } from "../../utils/common";
 import { getCertificate } from "./self-signed-cert";
+import fs from "fs";
 
 export class Server {
     private server: any;
@@ -22,12 +23,17 @@ export class Server {
         app.use(express.static(directory));
 
         if (this.config?.https) {
-            const cert = getCertificate();
-            
-            const options = {
-                key: cert,
-                cert: cert
-            };
+            const options: ServerOptions = {};
+
+            if (this.config.certificate?.selfSigned) {
+                const selfSignedCert = getCertificate();
+                options.cert = selfSignedCert;
+                options.key = selfSignedCert;
+            }
+            else if (this.config.certificate?.pfx) {
+                options.pfx = fs.readFileSync(this.config.certificate.pfx);
+                options.passphrase = this.config.certificate.pfxPassword;
+            }
 
             this.server = https
                 .createServer(options, app)

@@ -1,7 +1,7 @@
 export interface Environnement {
     name: string;
     production: boolean;
-    connectionString?: string;
+    connectionString: string;
 }
 
 export interface Build {
@@ -9,15 +9,23 @@ export interface Build {
     environnement: string;
 }
 
+export interface Certificate {
+    pfx?: string;
+    pfxPassword?: string;
+    selfSigned?: boolean;
+}
+
 export interface Serve {
     port?: number;
     https?: boolean;
-    pfx?: string;
-    pfxPassword?: string;
+    certificate?: Certificate;
 }
 
 export interface Deploy {
+    entryPoints?: string[],
     environnement: string;
+    solutionUniqueName: string;
+    webResourcePathFormat: string;
 }
 
 export interface Configuration {
@@ -32,6 +40,14 @@ export interface Configuration {
     deploy?: Deploy;
 }
 
+export const defaultEnvironnements: Environnement[] = [
+    {
+        name: "dev",
+        production: false,
+        connectionString: ""
+    }
+];
+
 export const defaultConfig: Configuration = {
     name: "name",
     version: "1.0.0",
@@ -39,15 +55,17 @@ export const defaultConfig: Configuration = {
     entryPointDir: "entry-point",
     distDir: "dist",
     serve: {
-        https: false,
-        port: 12357
-    },
-    environnement: [
-        {
-            name: "dev",
-            production: false,
+        https: true,
+        port: 12357,
+        certificate: {
+            selfSigned: true
         }
-    ],
+    },
+    deploy: {
+        environnement: "dev",
+        solutionUniqueName: "<set solution unique name>",
+        webResourcePathFormat: "{editorName}_/js/{entrypoint}.js"
+    },
     build: {
         environnement: "dev"
     }

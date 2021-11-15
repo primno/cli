@@ -78,12 +78,12 @@ export function getCertificate() {
   certificateExists = fs.existsSync(certificatePath);
 
   if (certificateExists) {
-    const onDayInMs = 1000 * 60 * 60 * 24;
+    const oneDayInMs = 1000 * 60 * 60 * 24;
     const certStat = fs.statSync(certificatePath);
 
     const now = new Date();
 
-    if ((now.getTime() - certStat.ctime.getTime()) / onDayInMs > daysValidity) {
+    if ((now.getTime() - certStat.ctime.getTime()) / oneDayInMs > daysValidity) {
       certificateExists = false;
     }
   }
