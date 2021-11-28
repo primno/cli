@@ -8,6 +8,7 @@ async function deployAction() {
     }
 
     const currentWs = new Workspace(".");
+    await currentWs.build();
     await currentWs.deploy();
 };
 

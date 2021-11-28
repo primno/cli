@@ -1,6 +1,8 @@
 import { Bundler } from "./bundler/bundler";
 import path from "path";
 import glob from "glob";
+import { Deployer } from "./deployer/deployer";
+import { Deploy, Environnement } from "../configuration/configuration";
 
 export class EntryPoint {
     private _name: string;
@@ -25,6 +27,17 @@ export class EntryPoint {
         const dstPath = path.join(destinationDir, `${this.name}.js`);
         const bundler = new Bundler(this.entryPointPath, dstPath);
         bundler.watch();
+    }
+
+    public async deploy(deployConfig: Deploy, environnement: Environnement) {
+        console.info(`Deploying ${this.name}`);
+        const deployer = new Deployer(this.entryPointPath, this.name, {
+            connectionString: environnement.connectionString,
+            solutionUniqueName: deployConfig.solutionUniqueName,
+            webResourcePathFormat: deployConfig.webResourcePathFormat
+        });
+        
+        await deployer.deploy();
     }
 
     public static getEntryPoints(entryPointDir: string) {

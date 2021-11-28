@@ -1,21 +1,22 @@
 import fs from "fs";
 import path from "path";
-import { Configuration, defaultConfig, Deploy, Serve } from "../configuration/configuration";
+import { Configuration, defaultConfig, defaultEnvironnements, Deploy, Environnement, Serve } from "../configuration/configuration";
 import { Template } from "./template/template";
 import { isNullOrUndefined, mergeDeep } from "../utils/common";
 import { EntryPoint } from "./entry-point";
 import { Npm } from "../utils/npm";
 import { Server } from "./server/server";
-import { Deployer } from "./deployer/deployer";
 
 export class Workspace {
     private _config: Configuration;
     private _entryPoints: EntryPoint[];
     private _sourceRoot: string;
     private _entryPointDir: string;
+    private _environnements: Environnement[];
 
     public constructor(private dirPath: string) {
         this._config = this.loadConfig();
+        this._environnements = this.loadEnvironnements();
         this._sourceRoot = path.join(dirPath, this.config.sourceRoot);
         this._entryPointDir = path.join(this._sourceRoot, this.config.entryPointDir);
 
@@ -43,9 +44,17 @@ export class Workspace {
         template.applyTo(this.dirPath, this.config);*/
     }
 
-    public async deploy() {
-        const deployer = new Deployer(this.config.deploy as Deploy, this.config.environnement);
-        await deployer.deploy();
+    public async deploy(entryPoint?: string | string[]) {
+        const entryPoints = this.searchEntryPoint(entryPoint);
+        const environnement = this._environnements.find(e => e.name == this.config.deploy?.environnement);
+
+        if (isNullOrUndefined(environnement)) {
+            throw new Error("Environnement not found");
+        }
+
+        for (const ep of entryPoints) {
+            await ep.deploy(this.config.deploy as Deploy, environnement);
+        }
     }
 
     public async watch(entryPoint?: string | string[]) {
@@ -79,6 +88,11 @@ export class Workspace {
         return mergeDeep(defaultConfig as any, JSON.parse(content));
     }
 
+    private loadEnvironnements(): Environnement[] {
+        const content = fs.readFileSync(path.join(this.dirPath, "primno.env.json"), "utf-8");
+        return JSON.parse(content) ?? [];
+    }
+
     public static create(dirPath: string, name: string): Workspace {
         const workspaceDir = path.join(dirPath, name);
 
@@ -89,9 +103,10 @@ export class Workspace {
         fs.mkdirSync(workspaceDir);
         
         let config = { ...defaultConfig, name: name};
+        const environnements = defaultEnvironnements;
 
         const templateApplier = new Template("new");
-        templateApplier.applyTo(workspaceDir, config);
+        templateApplier.applyTo(workspaceDir, config, environnements);
 
         const npm = new Npm(workspaceDir);
         npm.install(["tslib", "@types/xrm@^9.0.40"], { dev: true });

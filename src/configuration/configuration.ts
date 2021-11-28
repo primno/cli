@@ -34,7 +34,6 @@ export interface Configuration {
     sourceRoot: string;
     entryPointDir: string;
     distDir: string;
-    environnement?: Environnement[];
     build?: Build;
     serve?: Serve;
     deploy?: Deploy;
@@ -64,7 +63,7 @@ export const defaultConfig: Configuration = {
     deploy: {
         environnement: "dev",
         solutionUniqueName: "<set solution unique name>",
-        webResourcePathFormat: "{editorName}_/js/{entrypoint}.js"
+        webResourcePathFormat: "{{editorName}}_/js/{{entryPoint}}.js"
     },
     build: {
         environnement: "dev"
