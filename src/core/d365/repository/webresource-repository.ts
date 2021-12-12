@@ -3,9 +3,7 @@ import { isNullOrUndefined } from "../../../utils/common";
 import { WebResource } from "../model/webresource";
 
 export class WebResourceRepository {
-    public constructor(private d365Client: D365Client) {
-
-    }
+    public constructor(private d365Client: D365Client) {}
 
     public async createOrUpdate(webResource: WebResource): Promise<string> {
         try {
@@ -13,7 +11,7 @@ export class WebResourceRepository {
 
             if (isNullOrUndefined(existingWR)) {
                 const result = await this.create(webResource);
-                return result.id;
+                return result.webresourceid as string;
             }
             else {
                 webResource.webresourceid = existingWR.webresourceid;
@@ -34,13 +32,15 @@ export class WebResourceRepository {
         return await this.d365Client.updateRecord("webresourceset", webResource.webresourceid as string, webResource);
     }
 
-    public async findByName(webResourceName: string): Promise<WebResource> {
-        const options = [
-            "$select=webresourceid,name,webresourcetype,content",
-            `$filter=name eq '${webResourceName}'`,
-        ].join("&");
+    public async findByName(webResourceName: string): Promise<WebResource | undefined> {
+        const webResources = await this.d365Client.retrieveMultipleRecords<WebResource>(
+            "webresourceset",
+            {
+                select: ["webresourceid", "name", "webresourcetype", "content"],
+                filters: [{ conditions: [{ attribute: "name", operator: "eq", value: webResourceName }] }]
+            }
+        );
 
-        const webResources = await this.d365Client.retrieveMultipleRecords<WebResource>("webresourceset", options);
         return webResources[0];
     }
 }

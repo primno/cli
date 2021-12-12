@@ -56,6 +56,11 @@ export class Deployer {
     }
 
     private getWebResourceName(solution: Solution) {
+        if (isNullOrUndefined(solution?.publisherid?.customizationprefix)) {
+            console.log(solution);
+            throw new Error("Customization prefix not found");
+        }
+
         const webResourceFormatOptions = {
             "editorName": solution.publisherid.customizationprefix,
             "entryPoint": this.entryPoint
