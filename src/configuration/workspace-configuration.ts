@@ -6,7 +6,6 @@ export interface Environnement {
 
 export interface Build {
     entryPoints?: string[];
-    environnement: string;
 }
 
 export interface Certificate {
@@ -25,10 +24,13 @@ export interface Deploy {
     entryPoints?: string[],
     environnement: string;
     solutionUniqueName: string;
-    webResourcePathFormat: string;
+    webResourceNameTemplate: {
+        primno: string,
+        entryPoint: string
+    }
 }
 
-export interface Configuration {
+export interface WorkspaceConfig {
     name: string;
     version: string;
     sourceRoot: string;
@@ -47,7 +49,7 @@ export const defaultEnvironnements: Environnement[] = [
     }
 ];
 
-export const defaultConfig: Configuration = {
+export const defaultConfig: WorkspaceConfig = {
     name: "name",
     version: "1.0.0",
     sourceRoot: "src",
@@ -63,9 +65,12 @@ export const defaultConfig: Configuration = {
     deploy: {
         environnement: "dev",
         solutionUniqueName: "<set solution unique name>",
-        webResourcePathFormat: "{{editorName}}_/js/{{entryPoint}}.js"
+        webResourceNameTemplate: {
+            primno: "{{editorName}}_/{{projectName}}/js/primno.js",
+            entryPoint: "{{editorName}}_/{{projectName}}/js/{{entryPoint}}.js"
+        }
     },
     build: {
-        environnement: "dev"
+        
     }
 };

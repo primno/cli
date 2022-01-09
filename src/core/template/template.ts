@@ -1,7 +1,7 @@
 import fs from 'fs';
 import Mustache from 'mustache';
 import path from 'path';
-import { Configuration, Environnement } from '../../configuration/configuration';
+import { WorkspaceConfig, Environnement } from '../../configuration/workspace-configuration';
 
 enum EntryType {
     directory,
@@ -59,7 +59,7 @@ export class Template {
         });
     }
 
-    public applyTo(destination: string, config: Configuration, environnements: Environnement[]) {
+    public applyTo(destination: string, config: WorkspaceConfig, environnements: Environnement[]) {
         for (const entry of this.entries) {
             const relativePath = path.relative(this.dir, entry.fullPath);
             const destinationPath = path.join(destination, relativePath);

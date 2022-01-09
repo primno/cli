@@ -5,19 +5,19 @@ import { SolutionComponentType } from "../d365/model/add-solution-component";
 import { WebResourceType } from "../d365/model/webresource";
 import { WebResourceRepository } from "../d365/repository/webresource-repository";
 import { isNullOrUndefined } from "../../utils/common";
-import Mustache from "mustache";
 import { Solution } from "../d365/model/solution";
 
 export interface DeployerConfig {
+    // TODO: Change location ?
+    projectName: string;
     connectionString: string;
     solutionUniqueName: string;
-    webResourcePathFormat: string;
 }
 
-export class Deployer {
-    public constructor(private sourcePath: string, private entryPoint: string, private config: DeployerConfig) { }
+export abstract class Deployer<TCfg extends DeployerConfig> {
+    public constructor(protected sourcePath: string, protected config: TCfg) { }
 
-    public async deploy() {
+    public async deploy(): Promise<string> {
         try {
             const d365Client = new D365Client(this.config.connectionString);
 
@@ -49,22 +49,13 @@ export class Deployer {
                 AddRequiredComponents: false,
                 SolutionUniqueName: this.config.solutionUniqueName
             });
+
+            return webResourceId;
         }
         catch (except: any) {
-            console.error(`Deploying error: ${except}`);
+            throw new Error(`Unable to deploy ${this.sourcePath}: ${except.message}`);
         }
     }
 
-    private getWebResourceName(solution: Solution) {
-        if (isNullOrUndefined(solution?.publisherid?.customizationprefix)) {
-            console.log(solution);
-            throw new Error("Customization prefix not found");
-        }
-
-        const webResourceFormatOptions = {
-            "editorName": solution.publisherid.customizationprefix,
-            "entryPoint": this.entryPoint
-        };
-        return Mustache.render(this.config.webResourcePathFormat, webResourceFormatOptions);
-    }
+    protected abstract getWebResourceName(solution: Solution): string;
 }

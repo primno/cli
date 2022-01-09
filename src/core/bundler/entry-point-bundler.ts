@@ -1,11 +1,10 @@
-import { Configuration } from "../../configuration/configuration";
 import { InputOptions, OutputOptions, rollup, watch } from "rollup";
 import nodeResolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import typescript from "@rollup/plugin-typescript";
 import { getPackageJson } from "../../utils/package";
 
-export class Bundler {
+export class EntryPointBundler {
     private rollupInput: InputOptions;
     private rollupOutput: OutputOptions;
 
@@ -39,7 +38,7 @@ export class Bundler {
             await rollupBuild.write(this.rollupOutput);
         }
         catch (except) {
-            console.error(`Building error occured: ${except}`);
+            throw new Error(`Building error occured: ${except}`);
         }
         finally {
             await rollupBuild?.close();

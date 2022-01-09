@@ -1,26 +1,29 @@
 import fs from "fs";
 import path from "path";
-import { Configuration, defaultConfig, defaultEnvironnements, Deploy, Environnement, Serve } from "../configuration/configuration";
+import { WorkspaceConfig, defaultConfig, defaultEnvironnements, Deploy, Environnement, Serve } from "../configuration/workspace-configuration";
 import { Template } from "./template/template";
 import { isNullOrUndefined, mergeDeep } from "../utils/common";
 import { EntryPoint } from "./entry-point";
 import { Npm } from "../utils/npm";
 import { Server } from "./server/server";
+import { PrimnoEntryPoint } from "./primno-entry-point";
+import { Publisher } from "./deployer/publisher";
 
 export class Workspace {
-    private _config: Configuration;
+    private _config: WorkspaceConfig;
     private _entryPoints: EntryPoint[];
-    private _sourceRoot: string;
-    private _entryPointDir: string;
     private _environnements: Environnement[];
+    private _primnoEntryPoint: PrimnoEntryPoint;
 
     public constructor(private dirPath: string) {
         this._config = this.loadConfig();
         this._environnements = this.loadEnvironnements();
-        this._sourceRoot = path.join(dirPath, this.config.sourceRoot);
-        this._entryPointDir = path.join(this._sourceRoot, this.config.entryPointDir);
+        this._entryPoints = EntryPoint.getEntryPoints(this._config);
+        this._primnoEntryPoint = new PrimnoEntryPoint(this.config);
+    }
 
-        this._entryPoints = EntryPoint.getEntryPoints(this._entryPointDir);
+    public get name(): string {
+        return this.config.name;
     }
 
     public get config() {
@@ -31,9 +34,21 @@ export class Workspace {
         return this._entryPoints;
     }
 
-    public async build(entryPoint?: string | string[]) {
+    public get primnoEntryPoint() {
+        return this._primnoEntryPoint;
+    }
+
+    private get environnement(): Environnement | undefined {
+        return this._environnements.find(e => e.name == this.config.deploy?.environnement);
+    }
+
+    public async build(entryPoint?: string | string[], serveMode?: boolean) {
         const entryPoints = this.searchEntryPoint(entryPoint);
 
+        // Build Primno
+        await this.primnoEntryPoint.build(serveMode);
+
+        // Build entry points
         for (const ep of entryPoints) {
             await ep.build(this.config.distDir);
         }
@@ -46,14 +61,29 @@ export class Workspace {
 
     public async deploy(entryPoint?: string | string[]) {
         const entryPoints = this.searchEntryPoint(entryPoint);
-        const environnement = this._environnements.find(e => e.name == this.config.deploy?.environnement);
 
-        if (isNullOrUndefined(environnement)) {
+        if (isNullOrUndefined(this.environnement)) {
             throw new Error("Environnement not found");
         }
 
-        for (const ep of entryPoints) {
-            await ep.deploy(this.config.deploy as Deploy, environnement);
+        try {
+            const webResourcesId = [];
+
+            // Deploy Primno
+            webResourcesId.push(await this.primnoEntryPoint.deploy(this.environnement));
+
+            // Deploy entry points
+            for (const ep of entryPoints) {
+                webResourcesId.push(await ep.deploy(this.environnement));
+            }
+
+            console.log("Publishing ...");
+            // Publish webressources
+            const publisher = new Publisher({ webResourcesId });
+            await publisher.publish(this.environnement);
+        }
+        catch (except: any) {
+            console.error(`Deploying error: ${except.message}`);
         }
     }
 
@@ -61,7 +91,7 @@ export class Workspace {
         const entryPoints = this.searchEntryPoint(entryPoint);
 
         for (const ep of entryPoints) {
-            await ep.watch(this.config.distDir);
+            await ep.watch();
         }
     }
 
@@ -83,7 +113,7 @@ export class Workspace {
         return this._entryPoints.filter(e => e.name == entryPoint);
     }
 
-    private loadConfig(): Configuration {
+    private loadConfig(): WorkspaceConfig {
         const content = fs.readFileSync(path.join(this.dirPath, "primno.json"), "utf-8");
         return mergeDeep(defaultConfig as any, JSON.parse(content));
     }

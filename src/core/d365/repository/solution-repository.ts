@@ -1,4 +1,4 @@
-import { D365Client, MultipleQueryOptions } from "@primno/d365-client";
+import { D365Client } from "@primno/d365-client";
 import { AddSolutionComponentRequest } from "../model/add-solution-component";
 import { Solution } from "../model/solution";
 
