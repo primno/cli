@@ -29,21 +29,17 @@ export class EntryPoint {
     }
 
     public async build(destinationDir: string): Promise<void> {
-        console.info(`Building ${this.name} ...`);
         const dstPath = path.join(destinationDir, `${this.name}.js`);
         const bundler = new EntryPointBundler(this.sourcePath, dstPath);
         await bundler.bundle();
     }
 
     public async watch() {
-        console.info(`Watching ${this.name} ...`);
         const bundler = new EntryPointBundler(this.sourcePath, this.distributionPath);
         bundler.watch();
     }
 
     public async deploy(environnement: Environnement): Promise<string> {
-        console.info(`Deploying ${this.name}`);
-
         const deployCfg = this.config.deploy;
         if (isNullOrUndefined(deployCfg)) {
             throw new Error("No deploiement configuration");

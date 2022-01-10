@@ -8,8 +8,8 @@ async function deployAction() {
     }
 
     const currentWs = new Workspace(".");
-    await currentWs.build();
-    await currentWs.deploy();
+    //await currentWs.build();
+    await currentWs.deploy({});
 };
 
 export const deployCommand = new Command('deploy')

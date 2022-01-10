@@ -46,17 +46,18 @@ export class PrimnoEntryPoint {
     }
 
     public async build(serveMode: boolean = false) {
-        console.log("Building Primno ...");
         const primnoConfig = this.generatePrimnoConfig(serveMode);
         const moduleName = `mn_${convertToSnakeCase(this.config.name)}`;
 
-        console.log(`Primno module name will be ${moduleName}`);
+        // TODO: Log this
+        // console.log(`Primno module name will be ${moduleName}`);
         const bundler = new PrimnoBundler(moduleName, primnoConfig, this.distributionPath);
         await bundler.bundle();
     }
 
     public async deploy(environnement: Environnement): Promise<string> {
-        console.log("Deploying Primno ...");
+        // TODO: Logger here
+        // console.log("Deploying Primno ...");
 
         const deployConfig = this.config.deploy;
         if (isNullOrUndefined(deployConfig)) {

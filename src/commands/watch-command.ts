@@ -8,7 +8,7 @@ async function watchAction(entryPoint?: string) {
     }
 
     const currentWs = new Workspace(".");
-    await currentWs.watch(entryPoint);
+    await currentWs.watch({ entryPoint });
 };
 
 export const watchCommand = new Command('watch')

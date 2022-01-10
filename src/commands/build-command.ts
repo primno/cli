@@ -8,7 +8,7 @@ async function buildAction(entryPoint?: string) {
     }
 
     const currentWs = new Workspace(".");
-    await currentWs.build(entryPoint);
+    await currentWs.build({ entryPoint });
 };
 
 export const buildCommand = new Command('build')

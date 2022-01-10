@@ -33,7 +33,8 @@
     "rollup": "^2.56.3",
     "selfsigned": "^1.10.11",
     "tslib": "^2.3.1",
-    "typescript": "^4.4.2"
+    "typescript": "^4.4.2",
+    "listr2": "^4.0.0"
   },
   "devDependencies": {
     "@types/node": "~16.10.3",

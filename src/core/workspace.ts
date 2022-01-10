@@ -8,6 +8,25 @@ import { Npm } from "../utils/npm";
 import { Server } from "./server/server";
 import { PrimnoEntryPoint } from "./primno-entry-point";
 import { Publisher } from "./deployer/publisher";
+import { Listr, ListrTask } from "listr2";
+
+interface EntryPointOptions {
+    entryPoint?: string | string[];
+}
+
+export interface BuildOptions extends EntryPointOptions {
+    serveMode?: boolean
+}
+
+export interface DeployOptions extends BuildOptions {
+}
+
+export interface WatchOptions extends EntryPointOptions {
+}
+
+export interface ServeOptions {
+
+}
 
 export class Workspace {
     private _config: WorkspaceConfig;
@@ -42,16 +61,34 @@ export class Workspace {
         return this._environnements.find(e => e.name == this.config.deploy?.environnement);
     }
 
-    public async build(entryPoint?: string | string[], serveMode?: boolean) {
-        const entryPoints = this.searchEntryPoint(entryPoint);
+    public async build(options: BuildOptions) {
+        await this.buildTask(options).run();
+    }
 
-        // Build Primno
-        await this.primnoEntryPoint.build(serveMode);
+    private buildTask(options: BuildOptions): Listr {
+        const entryPoints = this.searchEntryPoint(options.entryPoint);
 
-        // Build entry points
-        for (const ep of entryPoints) {
-            await ep.build(this.config.distDir);
+        const buildListr = new Listr([
+            {
+                title: "Build Primno",
+                task: async () => await this.primnoEntryPoint.build(options.serveMode)
+            }
+        ], { concurrent: true });
+
+        if (entryPoints.length > 0) {
+            buildListr.add({
+                title: "Build entrypoints",
+                task: (ctx, _task): Listr => _task.newListr(
+                    entryPoints.map(ep => <ListrTask>{
+                        title: `Build ${ep.name}`,
+                        task: async () => await ep.build(this.config.distDir)
+                    }),
+                    { concurrent: 3 }
+                )
+            });
         }
+
+        return buildListr;
     }
 
     public generate(templateName: string, name: string) {
@@ -59,46 +96,91 @@ export class Workspace {
         template.applyTo(this.dirPath, this.config);*/
     }
 
-    public async deploy(entryPoint?: string | string[]) {
-        const entryPoints = this.searchEntryPoint(entryPoint);
+    public async deploy(options: DeployOptions) {
+        await this.deployTask(options).run();
+    }
+
+    private deployTask(options: DeployOptions): Listr {
+        const entryPoints = this.searchEntryPoint(options.entryPoint);
 
         if (isNullOrUndefined(this.environnement)) {
             throw new Error("Environnement not found");
         }
 
-        try {
-            const webResourcesId = [];
+        const webResourcesId: string[] = [];
 
-            // Deploy Primno
-            webResourcesId.push(await this.primnoEntryPoint.deploy(this.environnement));
-
-            // Deploy entry points
-            for (const ep of entryPoints) {
-                webResourcesId.push(await ep.deploy(this.environnement));
+        const deployListr = new Listr([
+            {
+                title: "Build project",
+                task: (): Listr => this.buildTask(options)
+            },
+            {
+                title: "Deploy Primno",
+                task: async() => webResourcesId.push(await this.primnoEntryPoint.deploy(this.environnement as Environnement))
             }
+        ]);
 
-            console.log("Publishing ...");
-            // Publish webressources
-            const publisher = new Publisher({ webResourcesId });
-            await publisher.publish(this.environnement);
+        if (entryPoints.length > 0) {
+            deployListr.add({
+                title: "Deploy entrypoints",
+                task: (ctx, _task): Listr => _task.newListr(
+                    entryPoints.map(ep => <ListrTask>{
+                        title: `Deploy ${ep.name}`,
+                        task: async () => webResourcesId.push(await ep.deploy(this.environnement as Environnement))
+                    }),
+                    { concurrent: false }
+                )
+            });
         }
-        catch (except: any) {
-            console.error(`Deploying error: ${except.message}`);
-        }
+
+        deployListr.add({
+            title: "Publish",
+            task: async () => {
+                const publisher = new Publisher({ webResourcesId });
+                await publisher.publish(this.environnement as Environnement);
+            }
+        });
+
+        return deployListr;
     }
 
-    public async watch(entryPoint?: string | string[]) {
-        const entryPoints = this.searchEntryPoint(entryPoint);
-
-        for (const ep of entryPoints) {
-            await ep.watch();
-        }
+    public async watch(options: WatchOptions) {
+        await this.watchTask(options).run();
     }
 
-    public serve(): Server {
-        const server = new Server(this.config.serve as Serve);
-        server.serve(this.config.distDir);
-        return server;
+    private watchTask(options: WatchOptions): Listr {
+        const entryPoints = this.searchEntryPoint(options.entryPoint);
+
+        const watchListr = new Listr(entryPoints.map(ep => <ListrTask>{
+            title: `Watching ${ep.name}`,
+            task: async () => await ep.watch()
+        }), { concurrent: true });
+
+        return watchListr;
+    }
+
+    public async serve(options: ServeOptions) {
+        await this.serveTask(options).run();
+    }
+
+    private serveTask(options: ServeOptions): Listr {
+        return new Listr([
+            {
+                title: "Deploy Primno",
+                task: (): Listr => this.deployTask({ entryPoint: [], serveMode: true })
+            },
+            {
+                title: "Watching",
+                task: (): Listr => this.watchTask({})
+            },
+            {
+                title: "Serve",
+                task: () => {
+                    const server = new Server(this.config.serve as Serve);
+                    server.serve(this.config.distDir);
+                }
+            }
+        ]);
     }
 
     private searchEntryPoint(entryPoint?: string | string[]) {
@@ -109,7 +191,7 @@ export class Workspace {
         if (Array.isArray(entryPoint)) {
             return this._entryPoints.filter(ep => entryPoint.some(sep => sep === ep.name));
         }
-        
+
         return this._entryPoints.filter(e => e.name == entryPoint);
     }
 
@@ -131,8 +213,8 @@ export class Workspace {
         }
 
         fs.mkdirSync(workspaceDir);
-        
-        let config = { ...defaultConfig, name: name};
+
+        let config = { ...defaultConfig, name: name };
         const environnements = defaultEnvironnements;
 
         const templateApplier = new Template("new");

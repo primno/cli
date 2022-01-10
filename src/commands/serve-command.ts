@@ -8,10 +8,7 @@ async function serveAction() {
     }
 
     const currentWs = new Workspace(".");
-    await currentWs.build([], true); // Primno only
-    await currentWs.deploy([]); // Primno only
-    await currentWs.watch();
-    currentWs.serve();
+    await currentWs.serve({});
 };
 
 export const serveCommand = new Command('serve')
