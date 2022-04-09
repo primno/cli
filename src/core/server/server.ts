@@ -6,17 +6,21 @@ import { isNullOrUndefined } from "../../utils/common";
 import { getCertificate } from "./self-signed-cert";
 import fs from "fs";
 
+export interface ServeInfo {
+    directory: string;
+    port: number;
+    protocole: "HTTP" | "HTTPS";
+}
+
 export class Server {
     private server: any;
 
     public constructor(private config: Serve) { }
 
-    public serve(directory: string) {
+    public serve(directory: string): ServeInfo {
         if (!isNullOrUndefined(this.server)) {
             throw new Error("Server already started");
         }
-
-        console.info(`Serve ${directory} on port ${this.config.port} (${this.config.https ? "HTTPS" : "HTTP"})`);
 
         const app = express();
         app.use(cors());
@@ -42,6 +46,8 @@ export class Server {
         else {
             this.server = app.listen(this.config?.port);
         }
+
+        return { directory: directory, port: this.config.port as number, protocole: this.config.https ? "HTTPS" : "HTTP" };
     }
 
     public stop() {

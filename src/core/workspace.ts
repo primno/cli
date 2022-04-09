@@ -8,7 +8,8 @@ import { Npm } from "../utils/npm";
 import { Server } from "./server/server";
 import { PrimnoEntryPoint } from "./primno-entry-point";
 import { Publisher } from "./deployer/publisher";
-import { Listr, ListrTask } from "listr2";
+import { map, Observable } from "rxjs";
+import { Action, Task } from "../utils/task";
 
 interface EntryPointOptions {
     entryPoint?: string | string[];
@@ -65,30 +66,36 @@ export class Workspace {
         await this.buildTask(options).run();
     }
 
-    private buildTask(options: BuildOptions): Listr {
+    private buildTask(options: BuildOptions): Task {
         const entryPoints = this.searchEntryPoint(options.entryPoint);
 
-        const buildListr = new Listr([
-            {
-                title: "Build Primno",
-                task: async () => await this.primnoEntryPoint.build(options.serveMode)
+        const entryPointsActions = entryPoints.map(ep => <Action>{
+            title: `Build ${ep.name}`,
+            action: async () => {
+                const result = await ep.build(this.config.distDir);
+                if (result.hasErrors) {
+                    throw new Error(result.toString());
+                }
+                return result.toString();
             }
-        ], { concurrent: true });
+        });
 
-        if (entryPoints.length > 0) {
-            buildListr.add({
-                title: "Build entrypoints",
-                task: (ctx, _task): Listr => _task.newListr(
-                    entryPoints.map(ep => <ListrTask>{
-                        title: `Build ${ep.name}`,
-                        task: async () => await ep.build(this.config.distDir)
-                    }),
-                    { concurrent: 3 }
-                )
-            });
-        }
-
-        return buildListr;
+        return Task.new()
+            .withConcurrent(true)
+            .addAction({
+                title: "Build Primno",
+                action: async () => {
+                    const result = await this.primnoEntryPoint.build(options.serveMode);
+                    if (result.hasErrors) {
+                        throw new Error(result.toString());
+                    }
+                    return result.toString();
+                 }
+            })
+            .addSubTask("Build entrypoints")
+                .addActions(entryPointsActions)
+                .withConcurrent(3)
+            .end();
     }
 
     public generate(templateName: string, name: string) {
@@ -100,7 +107,7 @@ export class Workspace {
         await this.deployTask(options).run();
     }
 
-    private deployTask(options: DeployOptions): Listr {
+    private deployTask(options: DeployOptions): Task {
         const entryPoints = this.searchEntryPoint(options.entryPoint);
 
         if (isNullOrUndefined(this.environnement)) {
@@ -109,78 +116,65 @@ export class Workspace {
 
         const webResourcesId: string[] = [];
 
-        const deployListr = new Listr([
-            {
-                title: "Build project",
-                task: (): Listr => this.buildTask(options)
-            },
-            {
-                title: "Deploy Primno",
-                task: async() => webResourcesId.push(await this.primnoEntryPoint.deploy(this.environnement as Environnement))
-            }
-        ]);
-
-        if (entryPoints.length > 0) {
-            deployListr.add({
-                title: "Deploy entrypoints",
-                task: (ctx, _task): Listr => _task.newListr(
-                    entryPoints.map(ep => <ListrTask>{
-                        title: `Deploy ${ep.name}`,
-                        task: async () => webResourcesId.push(await ep.deploy(this.environnement as Environnement))
-                    }),
-                    { concurrent: false }
-                )
-            });
-        }
-
-        deployListr.add({
-            title: "Publish",
-            task: async () => {
-                const publisher = new Publisher({ webResourcesId });
-                await publisher.publish(this.environnement as Environnement);
-            }
+        const deployEntryPointsActions = entryPoints.map(ep => <Action>{
+            title: `Deploy ${ep.name}`,
+            action: async () => { webResourcesId.push(await ep.deploy(this.environnement as Environnement)); }
         });
 
-        return deployListr;
+        return Task.new()
+            .withConcurrent(false)
+            .addSubTask("Build Primno", this.buildTask(options)).end()
+            .addAction({
+                title: "Deploy Primno",
+                action: async () => {
+                    const webResourceId = await this.primnoEntryPoint.deploy(this.environnement as Environnement);
+                    webResourcesId.push(webResourceId);
+                }
+            })
+            .addSubTask("Deploy entrypoints")
+                .addActions(deployEntryPointsActions)
+                .withConcurrent(true)
+            .end()
+            .addAction({
+                title: "Publish",
+                action: async () => {
+                    const publisher = new Publisher({ webResourcesId });
+                    await publisher.publish(this.environnement as Environnement);
+                }
+            });
     }
 
     public async watch(options: WatchOptions) {
         await this.watchTask(options).run();
     }
 
-    private watchTask(options: WatchOptions): Listr {
-        const entryPoints = this.searchEntryPoint(options.entryPoint);
+    private watchTask(options?: WatchOptions): Task {
+        const entryPoints = this.searchEntryPoint(options?.entryPoint);
 
-        const watchListr = new Listr(entryPoints.map(ep => <ListrTask>{
-            title: `Watching ${ep.name}`,
-            task: async () => await ep.watch()
-        }), { concurrent: true });
-
-        return watchListr;
+        return Task.new()
+            .addObservable(
+                "Watching",
+                EntryPoint.watch(entryPoints)
+                .pipe(map(e => e.toString()))
+             );
     }
 
     public async serve(options: ServeOptions) {
         await this.serveTask(options).run();
     }
 
-    private serveTask(options: ServeOptions): Listr {
-        return new Listr([
-            {
-                title: "Deploy Primno",
-                task: (): Listr => this.deployTask({ entryPoint: [], serveMode: true })
-            },
-            {
-                title: "Watching",
-                task: (): Listr => this.watchTask({})
-            },
-            {
+    private serveTask(options: ServeOptions): Task {
+        return Task.new()
+            .withConcurrent(true)
+            .addSubTask("Deploy Primno", this.deployTask({ entryPoint: [], serveMode: true })).end()
+            .addAction({
                 title: "Serve",
-                task: () => {
+                action: () => {
                     const server = new Server(this.config.serve as Serve);
-                    server.serve(this.config.distDir);
+                    const serveInfo = server.serve(this.config.distDir);
                 }
-            }
-        ]);
+            })
+            .addSubTask("Watching", this.watchTask()).end();
     }
 
     private searchEntryPoint(entryPoint?: string | string[]) {

@@ -1,67 +1,40 @@
-import { InputOptions, OutputOptions, rollup, Plugin } from "rollup";
-import nodeResolve from "@rollup/plugin-node-resolve";
-import commonjs from "@rollup/plugin-commonjs";
+import { Plugin } from "rollup";
 import virtual from "@rollup/plugin-virtual";
-import typescript from "@rollup/plugin-typescript";
-import { getPackageJson } from "../../utils/package";
 import { Configuration as PrimnoConfig } from "@primno/core";
 import { isNullOrUndefined } from "../../utils/common";
+import { BundleResult } from "./bundle-result";
+import { Bundler } from "./bundler";
+import { Observable } from "rxjs";
 
 //TODO: Add EntryPoint with Primno embeded bundler
 //TODO: Add Configuration in Project Primno and Embeded bundler
 
-export class PrimnoBundler {
-    private rollupInput: InputOptions;
-    private rollupOutput: OutputOptions;
+function generatePrimnoCode(config: PrimnoConfig): string {
+    let primnoCode = `import * as primno from "@primno/core/dist/primno-d365.esm.js";
+                      export default primno;`;
+    if (!isNullOrUndefined(config)) {
+        primnoCode += `primno.setConfig(${JSON.stringify(config)});`;
+    }
 
-    public constructor(moduleName: string, config: PrimnoConfig, private destPath: string) {
-        const pkg = getPackageJson();
+    return primnoCode;
+}
 
-        const external = [...Object.keys(pkg.dependencies || {}), ...Object.keys(pkg.peerDependencies || {})];
-
-        this.rollupInput = {
-            input: "entry",
+export class PrimnoBundler extends Bundler {
+    public constructor(moduleName: string, config: PrimnoConfig, destPath: string) {
+        super({
+            moduleName,
+            destinationPath: destPath,
+            sourcePath: "entry",
             plugins: [
                 virtual({
-                    entry: this.generatePrimnoCode(config as any)
-                }) as Plugin,
-                nodeResolve(),
-                commonjs(),
-                typescript()
+                    entry: generatePrimnoCode(config)
+                }) as Plugin
             ],
-            external,
-        };
-
-        this.rollupOutput = {
-            format: "umd",
-            file: destPath,
-            name: moduleName,
-            sourcemap: false
-        };
+            format: "umd"
+        });
     }
 
-    private generatePrimnoCode(config?: PrimnoConfig): string {
-        let primnoCode = `import * as primno from "@primno/core/dist/primno-d365.esm.js";
-                          export default primno;`;
-        if (!isNullOrUndefined(config)) {
-            primnoCode += `primno.setConfig(${JSON.stringify(config)});`;
-        }
-
-        return primnoCode;
-    }
-
-    public async bundle() {
-        let rollupBuild;
-
-        try {
-            rollupBuild = await rollup(this.rollupInput);
-            await rollupBuild.write(this.rollupOutput);
-        }
-        catch (except) {
-            throw new Error(`Building error occured: ${except}`);
-        }
-        finally {
-            await rollupBuild?.close();
-        }
+    public watch(): Observable<BundleResult> {
+        throw new Error("Not implemented");
     }
 }

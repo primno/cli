@@ -52,7 +52,7 @@ export class PrimnoEntryPoint {
         // TODO: Log this
         // console.log(`Primno module name will be ${moduleName}`);
         const bundler = new PrimnoBundler(moduleName, primnoConfig, this.distributionPath);
-        await bundler.bundle();
+        return await bundler.bundle();
     }
 
     public async deploy(environnement: Environnement): Promise<string> {

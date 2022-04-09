@@ -1,64 +1,24 @@
-import { InputOptions, OutputOptions, rollup, watch } from "rollup";
-import nodeResolve from "@rollup/plugin-node-resolve";
-import commonjs from "@rollup/plugin-commonjs";
-import typescript from "@rollup/plugin-typescript";
-import { getPackageJson } from "../../utils/package";
+import { InputOptions, OutputOptions, rollup, RollupWatchOptions, WarningHandlerWithDefault, watch } from "rollup";
+import { Bundler, BundlerOptions } from "./bundler";
+import { Observable } from "rxjs";
+import { BundlerResultBuilder, onWarnWrapper } from "./bundler-result-builder";
+import { BundleResult } from "./bundle-result";
 
-export class EntryPointBundler {
-    private rollupInput: InputOptions;
-    private rollupOutput: OutputOptions;
+export interface EntryPointBundlerOptions {
+    sourcePath: string;
+    destinationPath: string;
+}
 
-    public constructor(private sourcePath: string, private destPath: string) {
-        const pkg = getPackageJson();
-
-        const external = [...Object.keys(pkg.dependencies || {}), ...Object.keys(pkg.peerDependencies || {})];
-
-        this.rollupInput = {
-            input: sourcePath,
-            plugins: [
-                nodeResolve(),
-                commonjs(),
-                typescript()
-            ],
-            external,
-        };
-
-        this.rollupOutput = {
-            format: "esm",
-            file: destPath,
-            sourcemap: false
-        };
-    }
-
-    public async bundle() {
-        let rollupBuild;
-
-        try {
-            rollupBuild = await rollup(this.rollupInput);
-            await rollupBuild.write(this.rollupOutput);
+export class EntryPointBundler extends Bundler {
+    public constructor(options: EntryPointBundlerOptions | EntryPointBundlerOptions[]) {
+        if (!Array.isArray(options)) {
+            options = [options];
         }
-        catch (except) {
-            throw new Error(`Building error occured: ${except}`);
-        }
-        finally {
-            await rollupBuild?.close();
-        }
-    }
 
-    public async watch() {
-        let rollupWatcher;
-        try {
-            rollupWatcher = watch({
-                ...this.rollupInput,
-                output: {
-                    ...this.rollupOutput
-                }
-            });
-        } catch (except) {
-            console.error(`Watching error occurent: ${except}`);
-        }
-        finally {
-            rollupWatcher?.close();
-        }
+        super(options.map(opt => ({
+            format: "es",
+            sourcePath: opt.sourcePath,
+            destinationPath: opt.destinationPath,
+        })));
     }
 }
