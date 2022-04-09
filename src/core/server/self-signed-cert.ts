@@ -1,5 +1,6 @@
 import path from "path";
 import fs from "fs";
+import { getCacheDir } from "../../utils/cache";
 const selfSigned = require("selfsigned");
 
 const daysValidity = 30;
@@ -70,7 +71,7 @@ function createCertificate() {
 }
 
 export function getCertificate() {
-  const certificateDir = path.join(__dirname, ".cache");
+  const certificateDir = path.join(getCacheDir(), "certs");
   const certificatePath = path.join(certificateDir, "self-signed.pem");
 
   let certificateExists = false;

@@ -6,6 +6,7 @@ import { WebResourceType } from "../d365/model/webresource";
 import { WebResourceRepository } from "../d365/repository/webresource-repository";
 import { isNullOrUndefined } from "../../utils/common";
 import { Solution } from "../d365/model/solution";
+import { getCacheDir } from "../../utils/cache";
 
 export interface DeployerConfig {
     // TODO: Change location ?
@@ -19,7 +20,12 @@ export abstract class Deployer<TCfg extends DeployerConfig> {
 
     public async deploy(): Promise<string> {
         try {
-            const d365Client = new D365Client(this.config.connectionString);
+            const d365Client = new D365Client(
+                this.config.connectionString,
+                {
+                    cacheDirectory: getCacheDir()
+                }
+            );
 
             const solutionRepository = new SolutionRepository(d365Client);
             const webResourceRepository = new WebResourceRepository(d365Client);
