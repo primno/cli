@@ -119,8 +119,6 @@ export class Task {
     }
 
     public withConcurrent(concurrent: number | boolean): Task {
-        this.taskInfo.exitOnError = concurrent === false;
-
         this.taskInfo.concurrent = concurrent;
         return this;
     }
@@ -135,7 +133,7 @@ export class Task {
 
     private get type() {
         return this.taskInfo.type;
-    } 
+    }
 
     private getListRTask(): ListrTask | null {
         switch (this.type) {
@@ -144,9 +142,30 @@ export class Task {
                     title: this.taskInfo.title,
                     task: async (ctx, t) => {
                         const action = this.taskInfo.action as ActionHandler;
-                        const result = await action();
-                        if (typeof result === "string") {
-                            t.output = result;
+
+                        // HACK: Workaround for https://github.com/cenk1cenk2/listr2/issues/641
+                        // Throw exception or send something to output when root task is failed will duplicate output.
+                        const getRootTask = (task: typeof t) => {
+                            let rootTask = task.task;
+
+                            while (rootTask.listr.parentTask) {
+                                rootTask = rootTask.listr.parentTask;
+                            }
+
+                            return rootTask;
+                        };
+
+                        const rootTask = getRootTask(t);
+
+                        try {
+                            const result = await action();
+                            if (typeof result === "string" && !rootTask.hasFailed()) {
+                                t.output = result;
+                            }
+                        } catch(except) {
+                            if (!rootTask.hasFailed()) {
+                                throw except;
+                            }
                         }
                     }
                 };
