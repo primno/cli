@@ -4,6 +4,7 @@ import path from "path";
 import { Environnement, WorkspaceConfig, defaultConfig } from "../configuration/workspace-configuration";
 import { isNullOrUndefined } from "../utils/common";
 import { convertToSnakeCase } from "../utils/naming";
+import { MessageType } from "./bundler/bundle-result";
 import { PrimnoBundler } from "./bundler/primno-bundler";
 import { PrimnoDeployer } from "./deployer/primno-deployer";
 
@@ -36,7 +37,6 @@ export class PrimnoEntryPoint {
             uriTemplate = `{webResourceBaseUrl}${Mustache.render(webResourcePathFormat, data)}`;
         }
         
-
         return {
             moduleResolverConfig: {
                 uriTemplate,
@@ -49,10 +49,16 @@ export class PrimnoEntryPoint {
         const primnoConfig = this.generatePrimnoConfig(serveMode);
         const moduleName = `mn_${convertToSnakeCase(this.config.name)}`;
 
-        // TODO: Log this
-        // console.log(`Primno module name will be ${moduleName}`);
         const bundler = new PrimnoBundler(moduleName, primnoConfig, this.distributionPath);
-        return await bundler.bundle();
+        const bundleResult = await bundler.bundle();
+
+        // TODO: Improve. Must be set here ?
+        bundleResult.messages.push({
+            message: `Primno entry point name will be ${moduleName}. Eg: Call ${moduleName}.onFormLoad for onload event.`,
+            type: MessageType.Info
+        });
+
+        return bundleResult;
     }
 
     public async deploy(environnement: Environnement): Promise<string> {

@@ -76,6 +76,10 @@ class TaskInfo {
     public set exitOnError(value) {
         this._exitOnError = value;
     }
+
+    public get persistentOutput() {
+        return true;
+    }
 }
 
 export class Task {
@@ -167,6 +171,9 @@ export class Task {
                                 throw except;
                             }
                         }
+                    },
+                    options: {
+                        persistentOutput: this.taskInfo.persistentOutput
                     }
                 };
             case TaskType.Observable:
