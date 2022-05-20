@@ -55,7 +55,6 @@ export class EntryPoint {
             return await deployer.deploy();
     }
 
-
     public static watch(entryPoints: EntryPoint[]) {
         const bundlerOptions: BundlerOptions[] = entryPoints.map(e => <BundlerOptions>{
             sourcePath: e.sourcePath,
@@ -67,8 +66,9 @@ export class EntryPoint {
     }
 
     public static getEntryPoints(config: WorkspaceConfig) {
+        const sourceDir = path.join(config.sourceRoot, config.entryPointDir);
         return glob
-            .sync(path.join(config.sourceRoot, config.entryPointDir, "*.ts"))
-            .map(f => new EntryPoint(f, config));
+            .sync("*.ts", { cwd: sourceDir })
+            .map(f => new EntryPoint(path.join(sourceDir, f), config));
     }
 }
