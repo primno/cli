@@ -1,6 +1,5 @@
 export interface Environnement {
     name: string;
-    production: boolean;
     connectionString: string;
 }
 
@@ -44,7 +43,6 @@ export interface WorkspaceConfig {
 export const defaultEnvironnements: Environnement[] = [
     {
         name: "dev",
-        production: false,
         connectionString: ""
     }
 ];
