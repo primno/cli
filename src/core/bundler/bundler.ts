@@ -2,6 +2,7 @@ import commonjs from "@rollup/plugin-commonjs";
 import nodeResolve from "@rollup/plugin-node-resolve";
 import typescript from "@rollup/plugin-typescript";
 import { InputOptions, ModuleFormat, OutputOptions, Plugin, rollup, RollupWatchOptions, watch } from "rollup";
+import { terser } from "rollup-plugin-terser";
 import { Observable } from "rxjs";
 import { getPackageJson } from "../../utils/package";
 import { BundleResult } from "./bundle-result";
@@ -13,6 +14,7 @@ export interface BundlerOptions {
     format: ModuleFormat;
     plugins?: Plugin[];
     moduleName?: string;
+    production: boolean;
 }
 
 interface RollupOption {
@@ -20,9 +22,10 @@ interface RollupOption {
     output: OutputOptions
 }
 
-export class Bundler {
+export abstract class Bundler {
     protected rollupOptions: RollupOption[];
 
+    // TODO: Add babel and terser support. Remove production flag.
     public constructor(options: BundlerOptions | BundlerOptions[]) {
         const pkg = getPackageJson();
         const external = [...Object.keys(pkg.dependencies || {}), ...Object.keys(pkg.peerDependencies || {})];
@@ -30,6 +33,8 @@ export class Bundler {
         if (!Array.isArray(options)) {
             options = [options];
         }
+        
+        const productionPlugins = [terser()];
 
         this.rollupOptions = options.map(opt => <RollupOption>{
             input: {
@@ -41,6 +46,7 @@ export class Bundler {
                         tsconfig: "./tsconfig.json",
                         noEmitOnError: false
                     }),
+                    ...opt.production ? productionPlugins : [],
                     ...opt.plugins ?? []
                 ],
                 external,
@@ -49,7 +55,7 @@ export class Bundler {
                 format: opt.format,
                 name: opt.moduleName,
                 file: opt.destinationPath,
-                sourcemap: false
+                sourcemap: opt.production ? false : "inline"
             }
         });
     }

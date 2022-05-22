@@ -8,6 +8,11 @@ import { MessageType } from "./bundler/bundle-result";
 import { PrimnoBundler } from "./bundler/primno-bundler";
 import { PrimnoDeployer } from "./deployer/primno-deployer";
 
+export interface PrimnoEntryPointBuildOptions {
+    serveMode?: boolean;
+    production: boolean;
+}
+
 // TODO: implements/extends EntryPoint or something like that
 export class PrimnoEntryPoint {
     public constructor(private config: WorkspaceConfig) {
@@ -45,11 +50,18 @@ export class PrimnoEntryPoint {
         };
     }
 
-    public async build(serveMode: boolean = false) {
+    public async build(options: PrimnoEntryPointBuildOptions) {
+        const { serveMode = false, production } = options;
+
         const primnoConfig = this.generatePrimnoConfig(serveMode);
         const moduleName = `mn_${convertToSnakeCase(this.config.name)}`;
 
-        const bundler = new PrimnoBundler(moduleName, primnoConfig, this.distributionPath);
+        const bundler = new PrimnoBundler({
+            moduleName,
+            config: primnoConfig,
+            destinationPath: this.distributionPath,
+            production
+        });
         const bundleResult = await bundler.bundle();
 
         // TODO: Improve. Must be set here ?

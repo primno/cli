@@ -8,10 +8,9 @@ async function deployAction() {
     }
 
     const currentWs = new Workspace(".");
-    //await currentWs.build();
-    await currentWs.deploy({});
+    await currentWs.deploy({ production: true });
 };
 
 export const deployCommand = new Command('deploy')
-    .description('deploy workspace')
+    .description('deploy workspace in production mode')
     .action(deployAction);

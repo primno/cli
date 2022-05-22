@@ -19,11 +19,22 @@ function generatePrimnoCode(config: PrimnoConfig): string {
     return primnoCode;
 }
 
+export interface PrimnoBundlerOptions {
+    moduleName: string;
+    config: PrimnoConfig;
+    destinationPath: string;
+    production: boolean;
+}
+
+// TODO: Composition instead of inheritance
 export class PrimnoBundler extends Bundler {
-    public constructor(moduleName: string, config: PrimnoConfig, destPath: string) {
+    public constructor(options: PrimnoBundlerOptions) {
+        const { moduleName, destinationPath, config, production } = options;
+
         super({
+            production,
             moduleName,
-            destinationPath: destPath,
+            destinationPath,
             sourcePath: "entry",
             plugins: [
                 virtual({

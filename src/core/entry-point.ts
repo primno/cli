@@ -7,6 +7,11 @@ import { isNullOrUndefined } from "../utils/common";
 import { BundlerOptions } from "./bundler/bundler";
 import { BundleResult } from "./bundler/bundle-result";
 
+export interface EntryPointBuildOptions {
+    destinationDir: string;
+    production: boolean;
+}
+
 export class EntryPoint {
     private _name: string;
     private _srcPath: string;
@@ -30,11 +35,12 @@ export class EntryPoint {
         return path.join(this.config.distDir, `${this.name}.js`);
     }
 
-    public async build(destinationDir: string): Promise<BundleResult> {
-        const dstPath = path.join(destinationDir, `${this.name}.js`);
+    public async build(options: EntryPointBuildOptions): Promise<BundleResult> {
+        const destinationPath = path.join(options.destinationDir, `${this.name}.js`);
         const bundler = new EntryPointBundler({
             sourcePath: this.sourcePath,
-            destinationPath: dstPath
+            destinationPath,
+            production: options.production
         });
         return await bundler.bundle();
     }

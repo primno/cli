@@ -8,7 +8,7 @@ import { Npm } from "../utils/npm";
 import { Server } from "./server/server";
 import { PrimnoEntryPoint } from "./primno-entry-point";
 import { Publisher } from "./deployer/publisher";
-import { map, Observable } from "rxjs";
+import { map } from "rxjs";
 import { Action, Task } from "../utils/task";
 
 interface EntryPointOptions {
@@ -16,10 +16,12 @@ interface EntryPointOptions {
 }
 
 export interface BuildOptions extends EntryPointOptions {
-    serveMode?: boolean
+    serveMode?: boolean;
+    production: boolean;
 }
 
 export interface DeployOptions extends BuildOptions {
+    
 }
 
 export interface WatchOptions extends EntryPointOptions {
@@ -72,7 +74,10 @@ export class Workspace {
         const entryPointsActions = entryPoints.map(ep => <Action>{
             title: `Build ${ep.name}`,
             action: async () => {
-                const result = await ep.build(this.config.distDir);
+                const result = await ep.build({
+                    destinationDir: this.config.distDir,
+                    production: options.production
+                });
                 if (result.hasErrors) {
                     throw new Error(result.toString());
                 }
@@ -85,7 +90,7 @@ export class Workspace {
             .addAction({
                 title: "Build Primno",
                 action: async () => {
-                    const result = await this.primnoEntryPoint.build(options.serveMode);
+                    const result = await this.primnoEntryPoint.build(options);
                     if (result.hasErrors) {
                         throw new Error(result.toString());
                     }
@@ -166,7 +171,12 @@ export class Workspace {
     private serveTask(options: ServeOptions): Task {
         return Task.new()
             .withConcurrent(true)
-            .addSubTask("Deploy Primno", this.deployTask({ entryPoint: [], serveMode: true })).end()
+            .addSubTask("Deploy Primno", this.deployTask({
+                production: false,
+                entryPoint: [],
+                serveMode: true
+            }))
+            .end()
             .addAction({
                 title: "Serve",
                 action: () => {
