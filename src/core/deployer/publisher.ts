@@ -1,5 +1,6 @@
 import { D365Client } from "@primno/d365-client";
 import { Environnement } from "../../configuration/workspace-configuration";
+import { escapeXml } from "../../utils/common";
 
 export interface PublishOptions {
     webResourcesId: string[];
@@ -15,7 +16,7 @@ export class Publisher {
     public async publish(environnement: Environnement): Promise<any> {
         const d365Client = new D365Client(environnement.connectionString);
 
-        const webResoucesNodes = this.options.webResourcesId.map(w => `<webresource>${w}</webresource>`).join("");
+        const webResoucesNodes = this.options.webResourcesId.map(w => `<webresource>${escapeXml(w)}</webresource>`).join("");
 
         const publishXmlRequest: PublishXmlRequest = {
             ParameterXml: `<importexportxml><webresources>${webResoucesNodes}</webresources></importexportxml>`

@@ -3,18 +3,19 @@ export function isNullOrUndefined<T>(obj: T | null | undefined): obj is null | u
 }
 
 /**
- * Indique si un élément est un objet javascript.
+ * Indicates whether an element is a javascript object.
  * @param item
  */
-export function isObject(item: unknown): item is Record<string, unknown> {
+ export function isObject(item: unknown): item is Record<string, unknown> {
     return (isNullOrUndefined(item) == false && typeof item === 'object' && !Array.isArray(item));
 }
 
-/* Fusionne un object avec d'autres, sous propriétés comprises.
+/**
+* Merges an object with others, including sub-properties.
 * @param target
 * @param sources
 */
-export function mergeDeep<T extends Record<string, unknown>>(target: T, ...sources: unknown[]): T {
+export function mergeDeep(target: Record<string, unknown>, ...sources: unknown[]): Record<string, unknown> {
     if (!sources.length) return target;
 
     const source = sources.shift();
@@ -31,4 +32,22 @@ export function mergeDeep<T extends Record<string, unknown>>(target: T, ...sourc
     }
 
     return mergeDeep(target, ...sources);
+}
+
+/**
+ * Escape Xml. Replace <, >, &, \ and " by XML equivalent.
+ * @param unsafe unsafe string to escape
+ * @returns escaped xml
+ */
+export function escapeXml(unsafe: string) {
+    return unsafe.replace(/[<>&'"]/g, (c) => {
+        switch (c) {
+            case '<': return '&lt;';
+            case '>': return '&gt;';
+            case '&': return '&amp;';
+            case '\'': return '&apos;';
+            case '"': return '&quot;';
+            default: return "";
+        }
+    });
 }
