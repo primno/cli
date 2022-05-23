@@ -15,7 +15,7 @@ export function isNullOrUndefined<T>(obj: T | null | undefined): obj is null | u
 * @param target
 * @param sources
 */
-export function mergeDeep(target: Record<string, unknown>, ...sources: unknown[]): Record<string, unknown> {
+export function mergeDeep<T extends Record<string, unknown>>(target: T, ...sources: unknown[]): T {
     if (!sources.length) return target;
 
     const source = sources.shift();
