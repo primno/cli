@@ -16,7 +16,13 @@ interface EntryPointOptions {
 }
 
 export interface BuildOptions extends EntryPointOptions {
-    serveMode?: boolean;
+    /**
+     * Primno import entry points from local web server.
+     */
+    local?: boolean;
+    /**
+     * Production mode will minify files.
+     */
     production: boolean;
 }
 
@@ -164,17 +170,17 @@ export class Workspace {
              );
     }
 
-    public async serve(options: ServeOptions) {
-        await this.serveTask(options).run();
+    public async start(options: ServeOptions) {
+        await this.startTask(options).run();
     }
 
-    private serveTask(options: ServeOptions): Task {
+    private startTask(options: ServeOptions): Task {
         return Task.new()
             .withConcurrent(true)
             .addSubTask("Deploy Primno", this.deployTask({
                 production: false,
                 entryPoint: [],
-                serveMode: true
+                local: true
             }))
             .end()
             .addAction({
