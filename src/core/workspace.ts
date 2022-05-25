@@ -33,8 +33,12 @@ export interface DeployOptions extends BuildOptions {
 export interface WatchOptions extends EntryPointOptions {
 }
 
-export interface ServeOptions {
+export interface StartOptions {
 
+}
+
+export interface PublishOptions {
+    webResourcesId: string[];
 }
 
 export class Workspace {
@@ -93,7 +97,7 @@ export class Workspace {
 
         return Task.new()
             .withConcurrent(true)
-            .addAction({
+            .newAction({
                 title: "Build Primno",
                 action: async () => {
                     const result = await this.primnoEntryPoint.build(options);
@@ -103,10 +107,10 @@ export class Workspace {
                     return result.toString();
                  }
             })
-            .addSubTask("Build entrypoints")
-                .addActions(entryPointsActions)
+            .newLevel("Build entrypoints")
+                .newActions(entryPointsActions)
                 .withConcurrent(3)
-            .end();
+            .endLevel();
     }
 
     public generate(templateName: string, name: string) {
@@ -134,19 +138,26 @@ export class Workspace {
 
         return Task.new()
             .withConcurrent(false)
-            .addSubTask("Build Primno", this.buildTask(options)).end()
-            .addAction({
+            .add(this.buildTask(options))
+            .newAction({
                 title: "Deploy Primno",
                 action: async () => {
                     const webResourceId = await this.primnoEntryPoint.deploy(this.environnement as Environnement);
                     webResourcesId.push(webResourceId);
                 }
             })
-            .addSubTask("Deploy entrypoints")
-                .addActions(deployEntryPointsActions)
-                .withConcurrent(true)
-            .end()
-            .addAction({
+            .newLevel("Deploy entrypoints")
+                .newActions(deployEntryPointsActions)
+                .withConcurrent(3)
+            .endLevel()
+            .add(this.publishTask({ webResourcesId }));
+    }
+
+    private publishTask(options: PublishOptions): Task {
+        const { webResourcesId } = options;
+
+        return Task.new()
+            .newAction({
                 title: "Publish",
                 action: async () => {
                     const publisher = new Publisher({ webResourcesId });
@@ -163,34 +174,38 @@ export class Workspace {
         const entryPoints = this.searchEntryPoint(options?.entryPoint);
 
         return Task.new()
-            .addObservable(
+            .newObservable(
                 "Watching",
                 EntryPoint.watch(entryPoints)
                 .pipe(map(e => e.toString()))
              );
     }
 
-    public async start(options: ServeOptions) {
+    public async start(options: StartOptions) {
         await this.startTask(options).run();
     }
 
-    private startTask(options: ServeOptions): Task {
+    private startTask(options: StartOptions): Task {
         return Task.new()
             .withConcurrent(true)
-            .addSubTask("Deploy Primno", this.deployTask({
+            .add(this.deployTask({
                 production: false,
                 entryPoint: [],
                 local: true
             }))
-            .end()
-            .addAction({
+            .add(this.serveTask())
+            .add(this.watchTask());
+    }
+
+    private serveTask(): Task {
+        return Task.new()
+            .newAction({
                 title: "Serve",
                 action: () => {
                     const server = new Server(this.config.serve as Serve);
                     const serveInfo = server.serve(this.config.distDir);
                 }
-            })
-            .addSubTask("Watching", this.watchTask()).end();
+            });
     }
 
     private searchEntryPoint(entryPoint?: string | string[]) {

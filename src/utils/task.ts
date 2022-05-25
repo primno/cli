@@ -53,6 +53,10 @@ class TaskInfo {
         return this._title;
     }
 
+    public set title(value) {
+        this._title = value;
+    }
+
     public get action() {
         return this._action;
     }
@@ -91,43 +95,51 @@ export class Task {
         return new Task(TaskInfo.newLevel());
     }
 
-    public addSubTask(title: string, subTask?: Task): Task {
-        let newTask: Task | undefined;
-
-        if (subTask) {
-            subTask.parent = this;
-            newTask = subTask;
-        }
-        else {
-            newTask = new Task(TaskInfo.newLevel(title), this);
+    public add(subTask: Task): Task {
+        if (subTask.type != TaskType.Level) {
+            throw new Error("Subtask must be a level");
         }
 
+        this.tasks.push(...subTask.tasks);
+        return this;
+    }
+
+    public newLevel(title: string): Task {
+        const newTask = new Task(TaskInfo.newLevel(title), this);
         this.tasks.push(newTask);
 
         return newTask;
     }
 
-    public addAction(action: Action): Task {
+    public newAction(action: Action): Task {
         this.tasks.push(new Task(TaskInfo.newAction(action.title, action.action), this));
         return this;
     }
 
-    public addObservable(title: string, observable: Observable<string>) {
+    public newObservable(title: string, observable: Observable<string>) {
         this.tasks.push(new Task(TaskInfo.newObservable(title, observable)));
         return this;
     }
 
-    public addActions(action: Action[]): Task {
-        action.forEach(a => this.addAction(a));
+    public newActions(action: Action[]): Task {
+        action.forEach(a => this.newAction(a));
         return this;
     }
 
     public withConcurrent(concurrent: number | boolean): Task {
+        if (this.type != TaskType.Level) {
+            throw new Error("Concurrent can be set only on level task");
+        }
+
         this.taskInfo.concurrent = concurrent;
         return this;
     }
 
-    public end(): Task {
+    /**
+     * Ends the creation of a new level task. Returns the parent task.
+     * @returns Parent task
+     */
+    public endLevel(): Task {
         if (!this.parent) {
             throw new Error("This task has no parent");
         }
@@ -139,6 +151,10 @@ export class Task {
         return this.taskInfo.type;
     }
 
+    /**
+     * Build ListR task.
+     * @returns Built ListrTask
+     */
     private getListRTask(): ListrTask | null {
         switch (this.type) {
             case TaskType.Action:
@@ -148,7 +164,7 @@ export class Task {
                         const action = this.taskInfo.action as ActionHandler;
 
                         // HACK: Workaround for https://github.com/cenk1cenk2/listr2/issues/641
-                        // Throw exception or send something to output when root task is failed will duplicate output.
+                        // Throw exception or send something to output when root task failed will duplicate output.
                         const getRootTask = (task: typeof t) => {
                             let rootTask = task.task;
 
@@ -182,8 +198,7 @@ export class Task {
                     task: async (ctx, t) => this.taskInfo.observable
                 };
             case TaskType.Level:
-                if (this.tasks.length == 0) {
-                    // TODO: Complete
+                if (this.tasks.length === 0) {
                     return null;
                 }
 
@@ -202,6 +217,9 @@ export class Task {
         }
     }
 
+    /**
+     * Run the task.
+     */
     public async run() {
         const listRTask = this.getListRTask();
 
