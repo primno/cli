@@ -96,7 +96,7 @@ export class Workspace {
         });
 
         return Task.new()
-            .withConcurrent(true)
+            .withConcurrency(true)
             .newAction({
                 title: "Build Primno",
                 action: async () => {
@@ -109,7 +109,7 @@ export class Workspace {
             })
             .newLevel("Build entrypoints")
                 .newActions(entryPointsActions)
-                .withConcurrent(3)
+                .withConcurrency(3)
             .endLevel();
     }
 
@@ -137,8 +137,8 @@ export class Workspace {
         });
 
         return Task.new()
-            .withConcurrent(false)
-            .add(this.buildTask(options))
+            .withConcurrency(false)
+            .addTaskAsLevel(this.buildTask(options), "Build")
             .newAction({
                 title: "Deploy Primno",
                 action: async () => {
@@ -148,9 +148,9 @@ export class Workspace {
             })
             .newLevel("Deploy entrypoints")
                 .newActions(deployEntryPointsActions)
-                .withConcurrent(3)
+                .withConcurrency(3)
             .endLevel()
-            .add(this.publishTask({ webResourcesId }));
+            .addSubtasks(this.publishTask({ webResourcesId }));
     }
 
     private publishTask(options: PublishOptions): Task {
@@ -187,14 +187,15 @@ export class Workspace {
 
     private startTask(options: StartOptions): Task {
         return Task.new()
-            .withConcurrent(true)
-            .add(this.deployTask({
+            .withConcurrency(true)
+            .addTaskAsLevel(this.deployTask({
                 production: false,
                 entryPoint: [],
                 local: true
-            }))
-            .add(this.serveTask())
-            .add(this.watchTask());
+            }),
+            "Deploy")
+            .addSubtasks(this.serveTask())
+            .addSubtasks(this.watchTask());
     }
 
     private serveTask(): Task {

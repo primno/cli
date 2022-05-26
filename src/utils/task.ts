@@ -9,9 +9,21 @@ export interface Action {
 }
 
 enum TaskType {
+    /**
+     * Function to call
+     */
     Action,
     Observable,
-    Level
+    /**
+     * Task containing subtasks.
+     */
+    Level,
+    /**
+     * Root task (level 0).
+     * This type of task has no real existence and will not be displayed.
+     * Used only to allow the creation of tasks when using {@link Task.new()}.
+     */
+    Root
 }
 
 class TaskInfo {
@@ -45,8 +57,16 @@ class TaskInfo {
         return new TaskInfo(TaskType.Level, title);
     }
 
+    public static newRoot() {
+        return new TaskInfo(TaskType.Root);
+    }
+
     public get type(): TaskType  {
         return this._type;
+    }
+
+    public set type(value) {
+        this._type = value;
     }
 
     public get title() {
@@ -91,19 +111,58 @@ export class Task {
 
     private constructor(private taskInfo: TaskInfo, private parent?: Task) {}
 
+    /**
+     * Create a new root task.
+     * @returns New task
+     */
     public static new() {
-        return new Task(TaskInfo.newLevel());
+        return new Task(TaskInfo.newRoot());
     }
 
-    public add(subTask: Task): Task {
-        if (subTask.type != TaskType.Level) {
-            throw new Error("Subtask must be a level");
+    /**
+     * Adds the subtask of given task at the same level of the current task.
+     * The task must be a root task (created with {@link Task.new()}).
+     * Order is preserved but not the root properties (Eg: {@link withConcurrency}     * 
+     * @param task Root task containing the subtasks to be added.
+     * @returns The current task.
+     */
+    public addSubtasks(task: Task): Task {
+        if (task.type !== TaskType.Root) {
+            throw new Error("Only root tasks are supported");
         }
 
-        this.tasks.push(...subTask.tasks);
+        this.tasks.push(...task.tasks);
+
         return this;
     }
 
+    /**
+     * Adds the task as level task.
+     * The given task must be a root task (created with {@link Task.new()}).
+     * Order and root properties (Eg: {@link withConcurrency}) are preserved.
+     * @param task Root Task to be added.
+     * @param title Title of level task.
+     * @returns The current task.
+     */
+    public addTaskAsLevel(task: Task, title: string): Task {
+        if (task.type !== TaskType.Root) {
+            throw new Error("Only root tasks are supported");
+        }
+
+        task.taskInfo.type = TaskType.Level;
+        task.taskInfo.title = title;
+
+        this.tasks.push(task);
+
+        return this;
+    }
+
+    /**
+     * Adds a task level.
+     * Task level is a container of subtasks.
+     * @param title Title of task level.
+     * @returns The current task.
+     */
     public newLevel(title: string): Task {
         const newTask = new Task(TaskInfo.newLevel(title), this);
         this.tasks.push(newTask);
@@ -116,21 +175,23 @@ export class Task {
         return this;
     }
 
-    public newObservable(title: string, observable: Observable<string>) {
-        this.tasks.push(new Task(TaskInfo.newObservable(title, observable)));
-        return this;
-    }
-
     public newActions(action: Action[]): Task {
         action.forEach(a => this.newAction(a));
         return this;
     }
 
-    public withConcurrent(concurrent: number | boolean): Task {
-        if (this.type != TaskType.Level) {
-            throw new Error("Concurrent can be set only on level task");
-        }
+    public newObservable(title: string, observable: Observable<string>) {
+        this.tasks.push(new Task(TaskInfo.newObservable(title, observable)));
+        return this;
+    }
 
+    /**
+     * Sets how many tasks will be run at the same time in parallel.
+     * @param concurrent Concurrency of subtasks.
+     *  false: no concurrency, all tasks run synchronously. true: subtasks run simulatneously. number: limit the max concurrency.
+     * @returns The current task.
+     */
+    public withConcurrency(concurrent: number | boolean): Task {
         this.taskInfo.concurrent = concurrent;
         return this;
     }
@@ -155,7 +216,7 @@ export class Task {
      * Build ListR task.
      * @returns Built ListrTask
      */
-    private getListRTask(): ListrTask | null {
+    private getListRTask(): ListrTask | null | ListrTask[] {
         switch (this.type) {
             case TaskType.Action:
                 return {
@@ -198,29 +259,39 @@ export class Task {
                     task: async (ctx, t) => this.taskInfo.observable
                 };
             case TaskType.Level:
-                if (this.tasks.length === 0) {
+            case TaskType.Root:
+                const subTasks = this.tasks
+                    .map(t => t.getListRTask() as ListrTask)
+                    .filter(t => t != null) as ListrTask[]; // Remove empty tasks
+
+                if (subTasks.length === 0) {
                     return null;
                 }
 
-                return {
-                    title: this.taskInfo.title,
-                    task: (ctx, _task): Listr => _task.newListr(
-                        this.tasks
-                            .map(t => t.getListRTask())
-                            .filter(t => t != null) as ListrTask[],
-                        {
-                            concurrent: this.taskInfo.concurrent,
-                            exitOnError: this.taskInfo.exitOnError
-                        }
-                    )
+                if (this.type === TaskType.Level) {
+                    return {
+                        title: this.taskInfo.title,
+                        task: (ctx, _task): Listr => _task.newListr(
+                            subTasks,
+                            this.getListROptions()
+                        )
+                    };
+                }
+                else {
+                    // Root is not a real level, subtasks are added at the same level.
+                    return subTasks;
                 }
         }
     }
 
-    /**
-     * Run the task.
-     */
-    public async run() {
+    private getListROptions() {
+        return {
+            concurrent: this.taskInfo.concurrent,
+            exitOnError: this.taskInfo.exitOnError
+        };
+    }
+
+    private getListR(): Listr {
         const listRTask = this.getListRTask();
 
         if (listRTask === null) {
@@ -237,8 +308,18 @@ export class Task {
                 showTimer: true,
                 collapse: false
             },
-            exitOnError: true
+            ...this.getListROptions(),
+            exitOnError: true,
         });
+
+        return listR;
+    }
+
+    /**
+     * Run the task.
+     */
+    public async run() {
+        const listR = this.getListR();
 
         try {
             await listR.run();
