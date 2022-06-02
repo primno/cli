@@ -4,7 +4,7 @@ import typescript from "@rollup/plugin-typescript";
 import { InputOptions, ModuleFormat, OutputOptions, Plugin, rollup, RollupWatchOptions, watch } from "rollup";
 import { terser } from "rollup-plugin-terser";
 import { Observable } from "rxjs";
-import { getPackageJson } from "../../utils/package";
+import { getPackageJson } from "../../../utils/package";
 import { BundleResult } from "./bundle-result";
 import { BundlerResultBuilder, onWarnWrapper } from "./bundler-result-builder";
 
@@ -22,7 +22,7 @@ interface RollupOption {
     output: OutputOptions
 }
 
-export abstract class Bundler {
+export class Bundler {
     protected rollupOptions: RollupOption[];
 
     // TODO: Add babel and terser support. Remove production flag.

@@ -1,11 +1,11 @@
-import { EntryPointBundler } from "./bundler/entry-point-bundler";
+import { EntryPointBundler } from "./builder/entry-point-builder";
 import path from "path";
 import glob from "glob";
 import { WorkspaceConfig, Environnement } from "../configuration/workspace-configuration";
 import { EntryPointDeployer } from "./deployer/entry-point-deployer";
 import { isNullOrUndefined } from "../utils/common";
-import { BundlerOptions } from "./bundler/bundler";
-import { BundleResult } from "./bundler/bundle-result";
+import { BundlerOptions } from "./builder/bundler/bundler";
+import { BundleResult } from "./builder/bundler/bundle-result";
 
 export interface EntryPointBuildOptions {
     destinationDir: string;

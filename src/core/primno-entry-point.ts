@@ -4,12 +4,12 @@ import path from "path";
 import { Environnement, WorkspaceConfig, defaultConfig } from "../configuration/workspace-configuration";
 import { isNullOrUndefined } from "../utils/common";
 import { convertToSnakeCase } from "../utils/naming";
-import { MessageType } from "./bundler/bundle-result";
-import { PrimnoBundler } from "./bundler/primno-bundler";
+import { MessageType } from "./builder/bundler/bundle-result";
+import { PrimnoBundler } from "./builder/primno-builder";
 import { PrimnoDeployer } from "./deployer/primno-deployer";
 
 export interface PrimnoEntryPointBuildOptions {
-    serveMode?: boolean;
+    local?: boolean;
     production: boolean;
 }
 
@@ -23,13 +23,13 @@ export class PrimnoEntryPoint {
         return path.join(this.config.distDir, "primno-d365.js");
     }
 
-    private generatePrimnoConfig(serveMode: boolean): PrimnoConfiguration {
+    private generatePrimnoConfig(localMode: boolean): PrimnoConfiguration {
         const webResourcePathFormat = this.config.deploy?.webResourceNameTemplate.entryPoint ??
                                       defaultConfig.deploy?.webResourceNameTemplate?.entryPoint as string;
 
         let uriTemplate: string;
 
-        if (serveMode) {
+        if (localMode) {
             uriTemplate = `https://localhost:${this.config.serve?.port ?? 12357}/{entityName}.js`;
         }
         else {
@@ -51,9 +51,9 @@ export class PrimnoEntryPoint {
     }
 
     public async build(options: PrimnoEntryPointBuildOptions) {
-        const { serveMode = false, production } = options;
+        const { local = false, production } = options;
 
-        const primnoConfig = this.generatePrimnoConfig(serveMode);
+        const primnoConfig = this.generatePrimnoConfig(local);
         const moduleName = `mn_${convertToSnakeCase(this.config.name)}`;
 
         const bundler = new PrimnoBundler({

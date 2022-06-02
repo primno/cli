@@ -1,4 +1,6 @@
-import { Bundler } from "./bundler";
+import { Observable } from "rxjs";
+import { BundleResult } from "./bundler/bundle-result";
+import { Bundler } from "./bundler/bundler";
 
 export interface EntryPointBundlerOptions {
     sourcePath: string;
@@ -6,18 +8,27 @@ export interface EntryPointBundlerOptions {
     production: boolean;
 }
 
-// TODO: Composition instead of inheritance
-export class EntryPointBundler extends Bundler {
+export class EntryPointBundler {
+    private bundler: Bundler;
+
     public constructor(options: EntryPointBundlerOptions | EntryPointBundlerOptions[]) {
         if (!Array.isArray(options)) {
             options = [options];
         }
 
-        super(options.map(opt => ({
+        this.bundler = new Bundler(options.map(opt => ({
             production: opt.production,
             format: "es",
             sourcePath: opt.sourcePath,
             destinationPath: opt.destinationPath,
         })));
+    }
+
+    public async bundle() {
+        return await this.bundler.bundle();
+    }
+
+    public watch(): Observable<BundleResult> {
+        return this.bundler.watch();
     }
 }

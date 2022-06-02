@@ -2,8 +2,8 @@ import { Plugin } from "rollup";
 import virtual from "@rollup/plugin-virtual";
 import { Configuration as PrimnoConfig } from "@primno/core";
 import { isNullOrUndefined } from "../../utils/common";
-import { BundleResult } from "./bundle-result";
-import { Bundler } from "./bundler";
+import { BundleResult } from "./bundler/bundle-result";
+import { Bundler } from "./bundler/bundler";
 import { Observable } from "rxjs";
 
 //TODO: Add EntryPoint with Primno embeded bundler
@@ -26,12 +26,13 @@ export interface PrimnoBundlerOptions {
     production: boolean;
 }
 
-// TODO: Composition instead of inheritance
-export class PrimnoBundler extends Bundler {
+export class PrimnoBundler {
+    private bundler: Bundler;
+
     public constructor(options: PrimnoBundlerOptions) {
         const { moduleName, destinationPath, config, production } = options;
 
-        super({
+        this.bundler = new Bundler({
             production,
             moduleName,
             destinationPath,
@@ -43,6 +44,10 @@ export class PrimnoBundler extends Bundler {
             ],
             format: "umd"
         });
+    }
+
+    public async bundle() {
+        return await this.bundler.bundle();
     }
 
     public watch(): Observable<BundleResult> {
