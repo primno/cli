@@ -1,15 +1,25 @@
-import { EntryPointBundler } from "./builder/entry-point-builder";
+import { Builder, BuilderOptions } from "./builder/builder";
 import path from "path";
 import glob from "glob";
 import { WorkspaceConfig, Environnement } from "../configuration/workspace-configuration";
 import { EntryPointDeployer } from "./deployer/entry-point-deployer";
 import { isNullOrUndefined } from "../utils/common";
-import { BundlerOptions } from "./builder/bundler/bundler";
 import { BundleResult } from "./builder/bundler/bundle-result";
+import { Configuration as PrimnoConfig } from "@primno/core";
+import { convertToSnakeCase } from "../utils/naming";
+import { CodeGeneratorMode as EntryPointBuildMode } from "./builder/code-generator";
+
+export { EntryPointBuildMode };
 
 export interface EntryPointBuildOptions {
-    destinationDir: string;
     production: boolean;
+    mode: EntryPointBuildMode;
+}
+
+interface GeneratePrimnoConfigOptions {
+    localImport: boolean;
+    entryPointName: string;
+    port?: number;
 }
 
 export class EntryPoint {
@@ -35,14 +45,49 @@ export class EntryPoint {
         return path.join(this.config.distDir, `${this.name}.js`);
     }
 
+    private static generatePrimnoConfig(options: GeneratePrimnoConfigOptions): PrimnoConfig {
+        const { port = 12357, entryPointName, localImport: localMode } = options;
+        if (localMode) {
+            return {
+                moduleResolverConfig: {
+                    uri: `https://localhost:${port}/${entryPointName}.js`,
+                    type: "import"
+                }
+            };
+        }
+        else {
+            return {
+                moduleResolverConfig: {
+                    type: "embedded"
+                }
+            };
+        }
+    }
+
     public async build(options: EntryPointBuildOptions): Promise<BundleResult> {
-        const destinationPath = path.join(options.destinationDir, `${this.name}.js`);
-        const bundler = new EntryPointBundler({
-            sourcePath: this.sourcePath,
-            destinationPath,
-            production: options.production
-        });
+        const bundlerOptions = EntryPoint.createBundlerOptions([this], options);
+        const bundler = new Builder(bundlerOptions);
         return await bundler.bundle();
+    }
+
+    private static createBundlerOptions(
+        entryPoints: EntryPoint[],
+        options: EntryPointBuildOptions): BuilderOptions[] {
+        return entryPoints.map(
+            ep => ({
+                // TODO: Change module name here. Prefix with mn_ and convert to snake case.
+                moduleName: `mn_${convertToSnakeCase(ep.name)}`,
+                sourcePath: ep.sourcePath,
+                destinationPath: ep.distributionPath,
+                production: options.production,
+                mode: options.mode,
+                primnoConfig: EntryPoint.generatePrimnoConfig({
+                    localImport: options.mode === EntryPointBuildMode.primnoImportLocal,
+                    port: ep.config.serve?.port,
+                    entryPointName: ep.name
+                })
+            })
+        );
     }
 
     public async deploy(environnement: Environnement): Promise<string> {
@@ -61,13 +106,18 @@ export class EntryPoint {
             return await deployer.deploy();
     }
 
-    public static watch(entryPoints: EntryPoint[]) {
-        const bundlerOptions: BundlerOptions[] = entryPoints.map(e => <BundlerOptions>{
-            sourcePath: e.sourcePath,
-            destinationPath: e.distributionPath
-        });
+    public static watch(entryPoints: EntryPoint[], options?: EntryPointBuildOptions) {       
+        options = options || {
+            mode: EntryPointBuildMode.primnoEmbedded,
+            production: false,
+        };
 
-        const bundler = new EntryPointBundler(bundlerOptions);
+        const bundlerOpt = EntryPoint.createBundlerOptions(
+            entryPoints,
+            options
+        );
+        
+        const bundler = new Builder(bundlerOpt);
         return bundler.watch();
     }
 

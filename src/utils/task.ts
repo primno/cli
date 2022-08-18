@@ -122,7 +122,7 @@ export class Task {
     /**
      * Adds the subtask of given task at the same level of the current task.
      * The task must be a root task (created with {@link Task.new()}).
-     * Order is preserved but not the root properties (Eg: {@link withConcurrency}     * 
+     * Order is preserved but not the root properties (Eg: {@link withConcurrency})
      * @param task Root task containing the subtasks to be added.
      * @returns The current task.
      */

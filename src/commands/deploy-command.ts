@@ -1,4 +1,5 @@
 import { Command } from 'commander';
+import { EntryPointBuildMode } from '../core/entry-point';
 import { Workspace } from '../core/workspace';
 
 async function deployAction() {
@@ -8,7 +9,7 @@ async function deployAction() {
     }
 
     const currentWs = new Workspace(".");
-    await currentWs.deploy({ production: true });
+    await currentWs.deploy({ production: true, mode: EntryPointBuildMode.primnoEmbedded });
 };
 
 export const deployCommand = new Command('deploy')

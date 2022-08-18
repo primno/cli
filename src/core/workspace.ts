@@ -3,10 +3,9 @@ import path from "path";
 import { WorkspaceConfig, defaultConfig, defaultEnvironnements, Deploy, Environnement, Serve } from "../configuration/workspace-configuration";
 import { Template } from "./template/template";
 import { isNullOrUndefined, mergeDeep } from "../utils/common";
-import { EntryPoint } from "./entry-point";
+import { EntryPoint, EntryPointBuildMode } from "./entry-point";
 import { Npm } from "../utils/npm";
 import { Server } from "./server/server";
-import { PrimnoEntryPoint } from "./primno-entry-point";
 import { Publisher } from "./deployer/publisher";
 import { map } from "rxjs";
 import { Action, Task } from "../utils/task";
@@ -19,7 +18,7 @@ export interface BuildOptions extends EntryPointOptions {
     /**
      * Primno import entry points from local web server.
      */
-    local?: boolean;
+    mode: EntryPointBuildMode;
     /**
      * Production mode will minify files.
      */
@@ -30,10 +29,11 @@ export interface DeployOptions extends BuildOptions {
     
 }
 
-export interface WatchOptions extends EntryPointOptions {
+export interface WatchOptions extends BuildOptions {
+    
 }
 
-export interface StartOptions {
+export interface StartOptions extends EntryPointOptions {
 
 }
 
@@ -45,13 +45,11 @@ export class Workspace {
     private _config: WorkspaceConfig;
     private _entryPoints: EntryPoint[];
     private _environnements: Environnement[];
-    private _primnoEntryPoint: PrimnoEntryPoint;
 
     public constructor(private dirPath: string) {
         this._config = this.loadConfig();
         this._environnements = this.loadEnvironnements();
         this._entryPoints = EntryPoint.getEntryPoints(this._config);
-        this._primnoEntryPoint = new PrimnoEntryPoint(this.config);
     }
 
     public get name(): string {
@@ -64,10 +62,6 @@ export class Workspace {
 
     public get entryPoints() {
         return this._entryPoints;
-    }
-
-    public get primnoEntryPoint() {
-        return this._primnoEntryPoint;
     }
 
     private get environnement(): Environnement | undefined {
@@ -84,10 +78,7 @@ export class Workspace {
         const entryPointsActions = entryPoints.map(ep => <Action>{
             title: `Build ${ep.name}`,
             action: async () => {
-                const result = await ep.build({
-                    destinationDir: this.config.distDir,
-                    production: options.production
-                });
+                const result = await ep.build(options);
                 if (result.hasErrors) {
                     throw new Error(result.toString());
                 }
@@ -97,16 +88,6 @@ export class Workspace {
 
         return Task.new()
             .withConcurrency(true)
-            .newAction({
-                title: "Build Primno",
-                action: async () => {
-                    const result = await this.primnoEntryPoint.build(options);
-                    if (result.hasErrors) {
-                        throw new Error(result.toString());
-                    }
-                    return result.toString();
-                 }
-            })
             .newLevel("Build entrypoints")
                 .newActions(entryPointsActions)
                 .withConcurrency(3)
@@ -139,13 +120,6 @@ export class Workspace {
         return Task.new()
             .withConcurrency(false)
             .addTaskAsLevel(this.buildTask(options), "Build")
-            .newAction({
-                title: "Deploy Primno",
-                action: async () => {
-                    const webResourceId = await this.primnoEntryPoint.deploy(this.environnement as Environnement);
-                    webResourcesId.push(webResourceId);
-                }
-            })
             .newLevel("Deploy entrypoints")
                 .newActions(deployEntryPointsActions)
                 .withConcurrency(3)
@@ -176,7 +150,7 @@ export class Workspace {
         return Task.new()
             .newObservable(
                 "Watching",
-                EntryPoint.watch(entryPoints)
+                EntryPoint.watch(entryPoints, options)
                 .pipe(map(e => e.toString()))
              );
     }
@@ -187,15 +161,18 @@ export class Workspace {
 
     private startTask(options: StartOptions): Task {
         return Task.new()
-            .withConcurrency(true)
+            //.withConcurrency(true)
             .addTaskAsLevel(this.deployTask({
+                entryPoint: options.entryPoint,
                 production: false,
-                entryPoint: [],
-                local: true
-            }),
-            "Deploy")
+                mode: EntryPointBuildMode.primnoImportLocal
+            }), "Deploy")
             .addSubtasks(this.serveTask())
-            .addSubtasks(this.watchTask());
+            .addSubtasks(this.watchTask({
+                entryPoint: options.entryPoint,
+                mode: EntryPointBuildMode.moduleOnly,
+                production: false,
+            }));
     }
 
     private serveTask(): Task {

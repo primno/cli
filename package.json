@@ -1,6 +1,6 @@
 {
   "name": "@primno/cli",
-  "version": "1.0.0",
+  "version": "0.3.0",
   "description": "Create, build and serve primno workspace",
   "main": "dist/index.js",
   "files": [

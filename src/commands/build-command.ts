@@ -1,4 +1,5 @@
 import { Command } from 'commander';
+import { EntryPointBuildMode } from '../core/entry-point';
 import { Workspace } from '../core/workspace';
 
 interface Options {
@@ -14,7 +15,8 @@ async function buildAction(entryPoint: string | undefined, options: Options) {
     const currentWs = new Workspace(".");
     await currentWs.build({
         entryPoint,
-        production: options.production
+        production: options.production,
+        mode: EntryPointBuildMode.primnoEmbedded
     });
 };
 
