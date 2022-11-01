@@ -26,10 +26,10 @@ export function generateCode(options: GenerateCodeOptions): string {
         case CodeGeneratorMode.primnoEmbedded:
             return `import * as primno from "@primno/core/dist/primno-d365.esm.js";
                     export default primno;
-                    import * as module from "${modulePosixPath}";
+                    import * as esm from "${modulePosixPath}";
                     primno.initialize({
                         config: ${JSON.stringify(options.config)},
-                        module
+                        esm
                     });`;
         case CodeGeneratorMode.moduleOnly:
             return `export * from "${modulePosixPath}";`;
