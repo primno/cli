@@ -2,8 +2,9 @@
   "devDependencies": {},
   "name": "{{ name }}",
   "scripts": {
-    "build": "mn build",
-    "start": "mn serve",
+    "build:prod": "mn build -p",
+    "build:dev": "mn build",
+    "start": "mn start",
     "watch": "mn watch"
   },
   "dependencies": {}
