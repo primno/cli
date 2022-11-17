@@ -1,1 +1,1 @@
-export { AppModule } from "../app/app.module.ts";
+export { AppModule } from "../app/app.module";
