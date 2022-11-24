@@ -23,7 +23,12 @@ export abstract class Deployer<TCfg extends DeployerConfig> {
             const d365Client = new D365Client(
                 this.config.connectionString,
                 {
-                    cacheDirectory: getCacheDir()
+                    persistence: {
+                        enabled: true,
+                        cacheDirectory: getCacheDir(),
+                        serviceName: "primno-client",
+                        accountName: this.config.connectionString
+                    }
                 }
             );
 
