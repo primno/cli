@@ -26,7 +26,7 @@ export abstract class Deployer<TCfg extends DeployerConfig> {
                     persistence: {
                         enabled: true,
                         cacheDirectory: getCacheDir(),
-                        serviceName: "primno-client",
+                        serviceName: "primno-cli",
                         accountName: this.config.connectionString
                     }
                 }
