@@ -41,6 +41,6 @@ export class WebResourceRepository {
             }
         );
 
-        return webResources[0];
+        return webResources.entities[0];
     }
 }

@@ -15,7 +15,7 @@ export class SolutionRepository {
                 expands: [{ attribute: "publisherid", select:["customizationprefix"] }]
             }
         );
-        return solutions[0];
+        return solutions.entities[0];
     }
 
     public async addSolutionComponent(request: AddSolutionComponentRequest): Promise<any> {
