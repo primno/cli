@@ -4,7 +4,7 @@ import { program } from 'commander';
 import { startCommand, newCommand, buildCommand, watchCommand, deployCommand } from './commands';
 
 console.log(
-    chalk.blue(figlet.textSync("Primno CLI"))
+    chalk.rgb(238,167,74)(figlet.textSync("Primno CLI"))
 );
 
 program.version('1.0.0')
