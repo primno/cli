@@ -4,7 +4,6 @@ import commonjs from '@rollup/plugin-commonjs';
 import pkg from './package.json';
 
 const external = [
-    "@primno/d365-client",
     ...Object.keys(pkg.dependencies || {}),
     ...Object.keys(pkg.peerDependencies || {})
 ];

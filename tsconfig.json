@@ -10,8 +10,6 @@
       "alwaysStrict": true,
       "experimentalDecorators": true,
       "outDir": "build",
-      "declaration": true,
-      "emitDeclarationOnly": true,
       "sourceMap": true
     },
     "compileOnSave": true,
