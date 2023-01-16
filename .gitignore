@@ -343,7 +343,7 @@ healthchecksdb
 .vscode/
 
 # Primno
-dist/tsc.js
+dist
 build
 .nyc_output
 
