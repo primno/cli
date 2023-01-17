@@ -212,7 +212,7 @@ export class Workspace {
         const workspaceDir = path.join(dirPath, name);
 
         if (fs.existsSync(workspaceDir)) {
-            throw new Error("Directory already exist");
+            throw new Error("Directory already exists");
         }
 
         fs.mkdirSync(workspaceDir);

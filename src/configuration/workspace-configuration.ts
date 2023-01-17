@@ -43,7 +43,7 @@ export interface WorkspaceConfig {
 export const defaultEnvironnements: Environnement[] = [
     {
         name: "dev",
-        connectionString: ""
+        connectionString: "<set connection string>"
     }
 ];
 
