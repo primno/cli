@@ -1,0 +1,10 @@
+# Node.js
+node_modules/
+
+# VSCode
+.vscode/
+
+# Primno
+dist
+build
+primno.env.json
