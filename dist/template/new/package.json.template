@@ -6,7 +6,7 @@
     "build:prod": "mn build -p",
     "build:dev": "mn build",
     "watch": "mn watch",
-    "deploy": "mn deploy",
+    "deploy": "mn deploy"
   },
   "dependencies": {}
 }
