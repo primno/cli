@@ -36,7 +36,7 @@ export class WebResourceRepository {
         const webResources = await this.d365Client.retrieveMultipleRecords<WebResource>(
             "webresourceset",
             {
-                select: ["webresourceid", "name", "webresourcetype", "content"],
+                select: ["webresourceid", "name", "webresourcetype", "content", "description", "displayname"],
                 filters: [{ conditions: [{ attribute: "name", operator: "eq", value: webResourceName }] }]
             }
         );
