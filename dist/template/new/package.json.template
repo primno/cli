@@ -2,10 +2,11 @@
   "devDependencies": {},
   "name": "{{ name }}",
   "scripts": {
+    "start": "mn start",
     "build:prod": "mn build -p",
     "build:dev": "mn build",
-    "start": "mn start",
-    "watch": "mn watch"
+    "watch": "mn watch",
+    "deploy": "mn deploy",
   },
   "dependencies": {}
 }
