@@ -8,8 +8,7 @@ import { Npm } from "../utils/npm";
 import { Server } from "./server/server";
 import { Publisher } from "./deployer/publisher";
 import { map } from "rxjs";
-import { Action, Task } from "../task/task";
-import { ResultBuilder } from "../task/result-builder";
+import { Action, Task, ResultBuilder } from "../task";
 
 interface EntryPointOptions {
     entryPoint?: string | string[];

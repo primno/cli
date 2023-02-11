@@ -3,8 +3,7 @@ import { map, Observable } from "rxjs";
 import { Bundler } from "./bundler/bundler";
 import { Configuration as PrimnoConfig } from "@primno/core";
 import { CodeGeneratorMode, generateCode } from "./code-generator";
-import { ResultBuilder } from "../../task/result-builder";
-import { Result } from "../../task/result";
+import { Result, ResultBuilder } from "../../task";
 
 export interface BuilderOptions {
     sourcePath: string;

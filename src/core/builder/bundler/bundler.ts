@@ -4,8 +4,7 @@ import typescript from "@rollup/plugin-typescript";
 import { InputOptions, ModuleFormat, OutputOptions, Plugin, rollup, RollupWatchOptions, watch } from "rollup";
 import { terser } from "rollup-plugin-terser";
 import { Observable } from "rxjs";
-import { Result } from "../../../task/result";
-import { ResultBuilder } from "../../../task/result-builder";
+import { Result, ResultBuilder } from "../../../task";
 import { getPackageJson } from "../../../utils/package";
 import {  onWarnWrapper } from "./warn-wrapper";
 

@@ -1,6 +1,6 @@
 import path from "path";
 import { WarningHandler } from "rollup";
-import { ResultBuilder } from "../../../task/result-builder";
+import { ResultBuilder } from "../../../task";
 
 export function onWarnWrapper(resultBuilder: ResultBuilder): WarningHandler {
     return (warning) => {

@@ -7,7 +7,7 @@ import { isNullOrUndefined } from "../utils/common";
 import { Configuration as PrimnoConfig } from "@primno/core";
 import { convertToSnakeCase } from "../utils/naming";
 import { CodeGeneratorMode as EntryPointBuildMode } from "./builder/code-generator";
-import { Result } from "../task/result";
+import { Result } from "../task";
 
 export { EntryPointBuildMode };
 
