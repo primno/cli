@@ -1,6 +1,9 @@
 {
   "devDependencies": {},
   "name": "{{ name }}",
+  "engines": {
+    "node": ">=16.0.0"
+  },
   "scripts": {
     "start": "mn start",
     "build:prod": "mn build -p",
