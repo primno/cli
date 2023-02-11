@@ -1,7 +1,7 @@
 import path from "path";
 import fs from "fs";
 import { getCacheDir } from "../../utils/cache";
-const selfSigned = require("selfsigned");
+import selfSigned from "selfsigned";
 
 const daysValidity = 30;
 

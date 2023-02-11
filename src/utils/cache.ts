@@ -1,5 +1,6 @@
 import path from "path";
+import { getDirName } from "./common";
 
 export function getCacheDir(): string {
-    return path.join(__dirname, ".cache");
+    return path.join(getDirName(), ".cache");
 }

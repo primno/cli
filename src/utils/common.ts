@@ -1,3 +1,6 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
+
 export function isNullOrUndefined<T>(obj: T | null | undefined): obj is null | undefined {
     return typeof obj === "undefined" || obj === null;
 }
@@ -50,4 +53,12 @@ export function escapeXml(unsafe: string) {
             default: return "";
         }
     });
+}
+
+/**
+ * Gets the directory name of the current process.
+ * @returns Directory name
+ */
+export function getDirName() {
+    return path.dirname(fileURLToPath(import.meta.url));
 }

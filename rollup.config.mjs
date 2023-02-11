@@ -20,6 +20,6 @@ export default [
         input: 'src/index.ts',
         plugins,
         external,
-        output: { format: 'cjs', file: 'dist/tsc.js', sourcemap: "inline" },
+        output: { format: 'esm', file: 'dist/tsc.mjs', sourcemap: "inline" },
     }
 ];

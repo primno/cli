@@ -2,6 +2,7 @@ import fs from 'fs';
 import Mustache from 'mustache';
 import path from 'path';
 import { WorkspaceConfig, Environment } from '../../configuration/workspace-configuration';
+import { getDirName } from '../../utils/common';
 
 enum EntryType {
     directory,
@@ -41,7 +42,7 @@ export class Template {
     private entries: Entry[];
 
     public constructor(templateName: string) {
-        this.dir = `${__dirname}/template/${templateName}`;
+        this.dir = `${getDirName()}/template/${templateName}`;
         this.entries = this.readDir(this.dir);
     }
 

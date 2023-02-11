@@ -1,3 +1,3 @@
 #!/usr/bin/env node
 
-require('./tsc.js');
+import './tsc.mjs';
