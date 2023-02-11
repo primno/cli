@@ -31,10 +31,10 @@
                 "build": {
                     "$ref": "#/definitions/Build"
                 },
-                "environnement": {
+                "environment": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/Environnement"
+                        "$ref": "#/definitions/Environment"
                     }
                 }
             },
@@ -42,7 +42,7 @@
                 "build",
                 "distDir",
                 "entryPointDir",
-                "environnement",
+                "environment",
                 "name",
                 "serve",
                 "sourceRoot",
@@ -54,7 +54,7 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "environnement": {
+                "environment": {
                     "type": "string"
                 },
                 "entryPoint": {
@@ -66,11 +66,11 @@
             },
             "required": [
                 "entryPoint",
-                "environnement"
+                "environment"
             ],
             "title": "Build"
         },
-        "Environnement": {
+        "Environment": {
             "type": "object",
             "additionalProperties": false,
             "properties": {
@@ -89,7 +89,7 @@
                 "name",
                 "production"
             ],
-            "title": "Environnement"
+            "title": "Environment"
         },
         "Serve": {
             "type": "object",

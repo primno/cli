@@ -1,14 +1,14 @@
 import fs from 'fs';
 import Mustache from 'mustache';
 import path from 'path';
-import { WorkspaceConfig, Environnement } from '../../configuration/workspace-configuration';
+import { WorkspaceConfig, Environment } from '../../configuration/workspace-configuration';
 
 enum EntryType {
     directory,
     template,
     file,
     config,
-    environnement
+    environment
 };
 
 class Entry {
@@ -28,7 +28,7 @@ class Entry {
             this.type = EntryType.config;
         }
         else if (path.basename(entry) == "primno.env.json") {
-            this.type = EntryType.environnement;
+            this.type = EntryType.environment;
         }
         else {
             this.type = EntryType.file;
@@ -59,7 +59,7 @@ export class Template {
         });
     }
 
-    public applyTo(destination: string, config: WorkspaceConfig, environnements: Environnement[]) {
+    public applyTo(destination: string, config: WorkspaceConfig, environments: Environment[]) {
         for (const entry of this.entries) {
             const relativePath = path.relative(this.dir, entry.fullPath);
             const destinationPath = path.join(destination, relativePath);
@@ -81,10 +81,10 @@ export class Template {
                 case EntryType.config:
                     fs.writeFileSync(destinationPath, JSON.stringify(config, null, 4));
                     break;
-                case EntryType.environnement:
-                    fs.writeFileSync(destinationPath, JSON.stringify(environnements, null, 4));
+                case EntryType.environment:
+                    fs.writeFileSync(destinationPath, JSON.stringify(environments, null, 4));
                     break;
-                default: throw new Error("Unknow entry type");
+                default: throw new Error("Unknown entry type");
             }
         }
     }

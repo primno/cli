@@ -1,6 +1,6 @@
 import { D365Client } from "@primno/d365-client";
 import { isNullOrUndefined } from "../../../utils/common";
-import { WebResource } from "../model/webresource";
+import { WebResource } from "../model/web-resource";
 
 export class WebResourceRepository {
     public constructor(private d365Client: D365Client) {}
@@ -20,7 +20,7 @@ export class WebResourceRepository {
             }
         }
         catch(except: any) {
-            throw new Error(`Webresource updating error: ${except}`);
+            throw new Error(`Web resource updating error: ${except}`);
         }
     }
 

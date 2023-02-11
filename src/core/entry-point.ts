@@ -1,7 +1,7 @@
 import { Builder, BuilderOptions } from "./builder/builder";
 import path from "path";
 import glob from "glob";
-import { WorkspaceConfig, Environnement } from "../configuration/workspace-configuration";
+import { WorkspaceConfig, Environment } from "../configuration/workspace-configuration";
 import { EntryPointDeployer } from "./deployer/entry-point-deployer";
 import { isNullOrUndefined } from "../utils/common";
 import { Configuration as PrimnoConfig } from "@primno/core";
@@ -75,7 +75,7 @@ export class EntryPoint {
         options: EntryPointBuildOptions): BuilderOptions[] {
         return entryPoints.map(
             ep => ({
-                // TODO: Change module name here. Prefix with mn_ and convert to snake case.
+                // TODO: Add project name if collisions occur.
                 moduleName: `mn_${convertToSnakeCase(ep.name)}`,
                 sourcePath: ep.sourcePath,
                 destinationPath: ep.distributionPath,
@@ -90,14 +90,14 @@ export class EntryPoint {
         );
     }
 
-    public async deploy(environnement: Environnement): Promise<string> {
+    public async deploy(environment: Environment): Promise<string> {
         const deployCfg = this.config.deploy;
             if (isNullOrUndefined(deployCfg)) {
                 throw new Error("No deployment configuration");
             }
 
             const deployer = new EntryPointDeployer(this.distributionPath, this.name, {
-                connectionString: environnement.connectionString,
+                connectionString: environment.connectionString,
                 solutionUniqueName: deployCfg.solutionUniqueName,
                 webResourcePathFormat: deployCfg.webResourceNameTemplate.entryPoint,
                 projectName: this.config.name

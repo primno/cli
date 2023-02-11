@@ -188,7 +188,7 @@ export class Task {
     /**
      * Sets how many tasks will be run at the same time in parallel.
      * @param concurrent Concurrency of subtasks.
-     *  false: no concurrency, all tasks run synchronously. true: subtasks run simulatneously. number: limit the max concurrency.
+     *  false: no concurrency, all tasks run synchronously. true: subtasks run simultaneously. number: limit the max concurrency.
      * @returns The current task.
      */
     public withConcurrency(concurrent: number | boolean): Task {

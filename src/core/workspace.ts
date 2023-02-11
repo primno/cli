@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { WorkspaceConfig, defaultConfig, defaultEnvironnements, Deploy, Environnement, Serve } from "../configuration/workspace-configuration";
+import { WorkspaceConfig, defaultConfig, defaultEnvironments, Deploy, Environment, Serve } from "../configuration/workspace-configuration";
 import { Template } from "./template/template";
 import { isNullOrUndefined, mergeDeep } from "../utils/common";
 import { EntryPoint, EntryPointBuildMode } from "./entry-point";
@@ -45,11 +45,11 @@ export interface PublishOptions {
 export class Workspace {
     private _config: WorkspaceConfig;
     private _entryPoints: EntryPoint[];
-    private _environnements: Environnement[];
+    private _environments: Environment[];
 
     public constructor(private dirPath: string) {
         this._config = this.loadConfig();
-        this._environnements = this.loadEnvironnements();
+        this._environments = this.loadEnvironments();
         this._entryPoints = EntryPoint.getEntryPoints(this._config);
     }
 
@@ -65,8 +65,8 @@ export class Workspace {
         return this._entryPoints;
     }
 
-    private get environnement(): Environnement | undefined {
-        return this._environnements.find(e => e.name == this.config.deploy?.environnement);
+    private get environment(): Environment | undefined {
+        return this._environments.find(e => e.name == this.config.deploy?.environment);
     }
 
     public async build(options: BuildOptions) {
@@ -89,7 +89,7 @@ export class Workspace {
 
         return Task.new()
             .withConcurrency(true)
-            .newLevel("Build entrypoints")
+            .newLevel("Build entry points")
                 .newActions(entryPointsActions)
                 .withConcurrency(3)
             .endLevel();
@@ -107,21 +107,21 @@ export class Workspace {
     private deployTask(options: DeployOptions): Task {
         const entryPoints = this.searchEntryPoint(options.entryPoint);
 
-        if (isNullOrUndefined(this.environnement)) {
-            throw new Error("Environnement not found");
+        if (isNullOrUndefined(this.environment)) {
+            throw new Error("Environment not found");
         }
 
         const webResourcesId: string[] = [];
 
         const deployEntryPointsActions = entryPoints.map(ep => <Action>{
             title: `Deploy ${ep.name}`,
-            action: async () => { webResourcesId.push(await ep.deploy(this.environnement as Environnement)); }
+            action: async () => { webResourcesId.push(await ep.deploy(this.environment as Environment)); }
         });
 
         return Task.new()
             .withConcurrency(false)
             .addTaskAsLevel(this.buildTask(options), "Build")
-            .newLevel("Deploy entrypoints")
+            .newLevel("Deploy entry points")
                 .newActions(deployEntryPointsActions)
                 .withConcurrency(3)
             .endLevel()
@@ -136,7 +136,7 @@ export class Workspace {
                 title: "Publish",
                 action: async () => {
                     const publisher = new Publisher({ webResourcesId });
-                    await publisher.publish(this.environnement as Environnement);
+                    await publisher.publish(this.environment as Environment);
                 }
             });
     }
@@ -213,7 +213,7 @@ export class Workspace {
         return mergeDeep(defaultConfig as any, JSON.parse(content));
     }
 
-    private loadEnvironnements(): Environnement[] {
+    private loadEnvironments(): Environment[] {
         const content = fs.readFileSync(path.join(this.dirPath, "primno.env.json"), "utf-8");
         return JSON.parse(content) ?? [];
     }
@@ -228,10 +228,10 @@ export class Workspace {
         fs.mkdirSync(workspaceDir);
 
         let config = { ...defaultConfig, name: name };
-        const environnements = defaultEnvironnements;
+        const environments = defaultEnvironments;
 
         const templateApplier = new Template("new");
-        templateApplier.applyTo(workspaceDir, config, environnements);
+        templateApplier.applyTo(workspaceDir, config, environments);
 
         const npm = new Npm(workspaceDir);
         npm.install(["tslib", "@types/xrm@^9.0.40"], { dev: true });

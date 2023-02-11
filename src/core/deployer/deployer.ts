@@ -2,8 +2,8 @@ import { D365Client } from "@primno/d365-client";
 import { SolutionRepository } from "../d365/repository/solution-repository";
 import { readFile } from "fs/promises";
 import { SolutionComponentType } from "../d365/model/add-solution-component";
-import { WebResourceType } from "../d365/model/webresource";
-import { WebResourceRepository } from "../d365/repository/webresource-repository";
+import { WebResourceType } from "../d365/model/web-resource";
+import { WebResourceRepository } from "../d365/repository/web-resource-repository";
 import { isNullOrUndefined } from "../../utils/common";
 import { Solution } from "../d365/model/solution";
 import { getCacheDir } from "../../utils/cache";
@@ -35,7 +35,7 @@ export abstract class Deployer<TCfg extends DeployerConfig> {
             const solutionRepository = new SolutionRepository(d365Client);
             const webResourceRepository = new WebResourceRepository(d365Client);
 
-            // Exist ?
+            // Exists ?
             const solution = await solutionRepository.getByName(this.config.solutionUniqueName);
 
             if (isNullOrUndefined(solution)) {
