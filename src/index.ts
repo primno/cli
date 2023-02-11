@@ -7,7 +7,11 @@ console.log(
     chalk.rgb(238,167,74)(figlet.textSync("Primno CLI"))
 );
 
-program.version('1.0.0')
+// TODO: Use package.json to fill version and description
+program
+    .name('mn')
+    .version('0.5.0')
+    .description("Create, build and serve primno workspace")
     .addCommand(startCommand)
     .addCommand(newCommand)
     .addCommand(buildCommand)
