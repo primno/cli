@@ -8,7 +8,7 @@
   ],
   "repository": "github:primno/cli",
   "scripts": {
-    "start": "node dist/index.js",
+    "start": "rollup -c && node dist/index.js",
     "build": "rollup -c",
     "watch": "rollup -cw"
   },
