@@ -9,11 +9,11 @@ export interface Message {
     message: string;
 }
 
-export interface BundleResult {
+export interface Result {
     startedOn?: Date;
     endOn?: Date;
+    showProgress?: boolean;
     messages: Message[];
     toString: () => string;
-    
     hasErrors: boolean;
 }

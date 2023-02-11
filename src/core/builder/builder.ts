@@ -1,10 +1,10 @@
 import virtual from "@rollup/plugin-virtual";
 import { map, Observable } from "rxjs";
-import { BundleResult } from "./bundler/bundle-result";
 import { Bundler } from "./bundler/bundler";
 import { Configuration as PrimnoConfig } from "@primno/core";
-import { BundlerResultBuilder } from "./bundler/bundler-result-builder";
 import { CodeGeneratorMode, generateCode } from "./code-generator";
+import { ResultBuilder } from "../../task/result-builder";
+import { Result } from "../../task/result";
 
 export interface BuilderOptions {
     sourcePath: string;
@@ -44,7 +44,7 @@ export class Builder {
         })));
     }
 
-    private addModulesMessages(bundlerResult: BundlerResultBuilder) {
+    private addModulesMessages(bundlerResult: ResultBuilder) {
         this.options.forEach(o => {
             bundlerResult.addInfo(`Module name is ${o.moduleName}. Eg: Call ${o.moduleName}.onFormLoad for onload event.`);
         });
@@ -52,15 +52,15 @@ export class Builder {
 
     public async bundle() {
         const bundlerResult = await this.bundler.bundle();
-        this.addModulesMessages(bundlerResult as BundlerResultBuilder);
+        this.addModulesMessages(bundlerResult as ResultBuilder);
         return bundlerResult;
     }
 
-    public watch(): Observable<BundleResult> {
+    public watch(): Observable<Result> {
         return this.bundler.watch()
             .pipe(
                 map((br) => {
-                    this.addModulesMessages(br as BundlerResultBuilder);
+                    this.addModulesMessages(br as ResultBuilder);
                     return br;
                 })
             );

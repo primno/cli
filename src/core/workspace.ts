@@ -8,7 +8,8 @@ import { Npm } from "../utils/npm";
 import { Server } from "./server/server";
 import { Publisher } from "./deployer/publisher";
 import { map } from "rxjs";
-import { Action, Task } from "../utils/task";
+import { Action, Task } from "../task/task";
+import { ResultBuilder } from "../task/result-builder";
 
 interface EntryPointOptions {
     entryPoint?: string | string[];
@@ -182,6 +183,15 @@ export class Workspace {
                 action: () => {
                     const server = new Server(this.config.serve as Serve);
                     const serveInfo = server.serve(this.config.distDir);
+
+                    const resultBuilder = new ResultBuilder();
+                    resultBuilder.addInfo(`Serving on ${serveInfo.schema}://localhost:${serveInfo.port}/`);
+
+                    if (serveInfo.newSelfSignedCert) {
+                        resultBuilder.addWarning(`New self-signed certificate generated. Accept it in your browser.`);
+                    }
+
+                    return resultBuilder.toString()
                 }
             });
     }

@@ -9,7 +9,8 @@ import fs from "fs";
 export interface ServeInfo {
     directory: string;
     port: number;
-    protocole: "HTTP" | "HTTPS";
+    schema: "http" | "https";
+    newSelfSignedCert: boolean;
 }
 
 export class Server {
@@ -26,13 +27,16 @@ export class Server {
         app.use(cors());
         app.use(express.static(directory));
 
+        let newSelfSignedCert = false;
+
         if (this.config?.https) {
             const options: ServerOptions = {};
 
             if (this.config.certificate?.selfSigned) {
-                const selfSignedCert = getCertificate();
-                options.cert = selfSignedCert;
-                options.key = selfSignedCert;
+                const cert = getCertificate();
+                options.cert = cert.cert;
+                options.key = cert.cert;
+                newSelfSignedCert = cert.regenerated;
             }
             else if (this.config.certificate?.pfx) {
                 options.pfx = fs.readFileSync(this.config.certificate.pfx);
@@ -47,7 +51,12 @@ export class Server {
             this.server = app.listen(this.config?.port);
         }
 
-        return { directory: directory, port: this.config.port as number, protocole: this.config.https ? "HTTPS" : "HTTP" };
+        return {
+            directory,
+            port: this.config.port as number,
+            schema: this.config.https ? "https" : "http",
+            newSelfSignedCert
+        };
     }
 
     public stop() {

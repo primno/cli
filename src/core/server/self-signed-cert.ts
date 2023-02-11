@@ -5,6 +5,10 @@ const selfSigned = require("selfsigned");
 
 const daysValidity = 30;
 
+/**
+ * Create a self-signed certificate valid for 30 days.
+ * @returns {string} The certificate
+ */
 function createCertificate() {
   const attrs = [{
     name: "commonName",
@@ -70,7 +74,16 @@ function createCertificate() {
   });
 }
 
-export function getCertificate() {
+export interface Certificate {
+  cert: string;
+  regenerated: boolean;
+}
+
+/**
+ * Get or generate a self-signed certificate valid for 30 days
+ * @returns {string} The certificate
+ */
+export function getCertificate(): Certificate {
   const certificateDir = path.join(getCacheDir(), "certs");
   const certificatePath = path.join(certificateDir, "self-signed.pem");
 
@@ -92,16 +105,19 @@ export function getCertificate() {
   if (!certificateExists) {
     fs.mkdirSync(certificateDir, { recursive: true });
 
-    const pems = createCertificate();
+    const pem = createCertificate();
 
     fs.writeFileSync(
       certificatePath,
-      pems.private + pems.cert,
+      pem.private + pem.cert,
       {
         encoding: "utf8",
       }
     );
   }
 
-  return fs.readFileSync(certificatePath);
+  return {
+     cert: fs.readFileSync(certificatePath, { encoding: "utf8" }),
+     regenerated: !certificateExists
+  };
 }

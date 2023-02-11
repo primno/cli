@@ -4,10 +4,10 @@ import glob from "glob";
 import { WorkspaceConfig, Environnement } from "../configuration/workspace-configuration";
 import { EntryPointDeployer } from "./deployer/entry-point-deployer";
 import { isNullOrUndefined } from "../utils/common";
-import { BundleResult } from "./builder/bundler/bundle-result";
 import { Configuration as PrimnoConfig } from "@primno/core";
 import { convertToSnakeCase } from "../utils/naming";
 import { CodeGeneratorMode as EntryPointBuildMode } from "./builder/code-generator";
+import { Result } from "../task/result";
 
 export { EntryPointBuildMode };
 
@@ -64,7 +64,7 @@ export class EntryPoint {
         }
     }
 
-    public async build(options: EntryPointBuildOptions): Promise<BundleResult> {
+    public async build(options: EntryPointBuildOptions): Promise<Result> {
         const bundlerOptions = EntryPoint.createBundlerOptions([this], options);
         const bundler = new Builder(bundlerOptions);
         return await bundler.bundle();
@@ -93,7 +93,7 @@ export class EntryPoint {
     public async deploy(environnement: Environnement): Promise<string> {
         const deployCfg = this.config.deploy;
             if (isNullOrUndefined(deployCfg)) {
-                throw new Error("No deploiement configuration");
+                throw new Error("No deployment configuration");
             }
 
             const deployer = new EntryPointDeployer(this.distributionPath, this.name, {

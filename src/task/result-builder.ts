@@ -1,38 +1,33 @@
 import chalk from "chalk";
-import path from "path";
-import { WarningHandler } from "rollup";
-import { BundleResult, Message, MessageType } from "./bundle-result";
+import { Message, MessageType, Result } from "./result";
 
 const endLine = "\r\n";
 
-export function onWarnWrapper(resultBuilder: BundlerResultBuilder): WarningHandler {
-    return (warning) => {
-        if (warning.loc?.file) {
-            const filePath = path.relative(".", warning.loc.file);
-            resultBuilder.addWarning(`${warning.message} at ${filePath} [${warning.loc.line}, ${warning.loc.column}]`);
-        }
-        else {
-            resultBuilder.addWarning(`${warning.message}`);
-        }
-    };
-}
-
-export class BundlerResultBuilder implements BundleResult {
+export class ResultBuilder implements Result {
     private _messages: Message[] = [];
     private _startedOn?: Date;
     private _endOn?: Date;
+    private _showProgress: boolean;
+
+    public constructor(showProgress: boolean = false) {
+        this._showProgress = showProgress;
+    }
 
     public get messages(): Message[] {
         return this._messages;
-    };
+    }
+
+    public get showProgress(): boolean {
+        return this._showProgress;
+    }
 
     public get startedOn(): Date | undefined {
         return this._startedOn;
-    };
+    }
 
     public get endOn(): Date | undefined {
         return this._endOn;
-    };
+    }
 
     public get hasErrors(): boolean {
         return this._messages.some(m => m.type === MessageType.Error);
@@ -81,10 +76,16 @@ export class BundlerResultBuilder implements BundleResult {
             }
         };
 
-        return [
-            chalk.gray(this.startedOn == null ? `Waiting starting` : `Starting at ${this.startedOn.toLocaleTimeString()}`),
-            ...this.messages.map(m => `[${colorize(m.type)}] ${m.message}`),
-            chalk.gray(this.endOn == null ? `Waiting ending` : `Ending at ${this.endOn.toLocaleTimeString()}`)
-        ].join(endLine);
+        const resultMessage = this.messages
+            .map(m => `[${colorize(m.type)}] ${m.message}`)
+            .join(endLine);
+
+        return this.showProgress ?
+            [
+                chalk.gray(this.startedOn == null ? `Waiting starting` : `Starting at ${this.startedOn.toLocaleTimeString()}`),
+                resultMessage,
+                chalk.gray(this.endOn == null ? `Waiting ending` : `Ending at ${this.endOn.toLocaleTimeString()}`)
+            ].join(endLine)
+            : resultMessage;
     }
 }
