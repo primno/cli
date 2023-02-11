@@ -7,6 +7,7 @@ import { WebResourceRepository } from "../d365/repository/web-resource-repositor
 import { isNullOrUndefined } from "../../utils/common";
 import { Solution } from "../d365/model/solution";
 import { getCacheDir } from "../../utils/cache";
+import { defaultConnectionString, defaultSolutionUniqueName } from "../../configuration/workspace-configuration";
 
 export interface DeployerConfig {
     // TODO: Change location ?
@@ -16,7 +17,15 @@ export interface DeployerConfig {
 }
 
 export abstract class Deployer<TCfg extends DeployerConfig> {
-    public constructor(protected sourcePath: string, protected config: TCfg) { }
+    public constructor(protected sourcePath: string, protected config: TCfg) {
+        if (config.connectionString == null || config.connectionString === defaultConnectionString) {
+            throw new Error("Invalid connection string");
+        }
+
+        if (config.solutionUniqueName == null || config.solutionUniqueName === defaultSolutionUniqueName) {
+            throw new Error("Invalid solution name");
+        }
+    }
 
     public async deploy(): Promise<string> {
         try {

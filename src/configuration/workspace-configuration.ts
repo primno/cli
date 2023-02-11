@@ -40,10 +40,13 @@ export interface WorkspaceConfig {
     deploy?: Deploy;
 }
 
+export const defaultConnectionString = "<set connection string>";
+export const defaultSolutionUniqueName = "<set solution unique name>";
+
 export const defaultEnvironments: Environment[] = [
     {
         name: "dev",
-        connectionString: "<set connection string>"
+        connectionString: defaultConnectionString
     }
 ];
 
@@ -62,7 +65,7 @@ export const defaultConfig: WorkspaceConfig = {
     },
     deploy: {
         environment: "dev",
-        solutionUniqueName: "<set solution unique name>",
+        solutionUniqueName: defaultSolutionUniqueName,
         webResourceNameTemplate: {
             primno: "{{editorName}}_/{{projectName}}/js/primno.js",
             entryPoint: "{{editorName}}_/{{projectName}}/js/{{entryPoint}}.js"
