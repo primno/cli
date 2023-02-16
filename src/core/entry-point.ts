@@ -16,6 +16,15 @@ export interface EntryPointBuildOptions {
     mode: EntryPointBuildMode;
 }
 
+export interface EntryPointDeployOptions {
+    environment: Environment;
+
+    /**
+     * Callback for device code authentication.
+     */
+    deviceCodeCallback: (url: string, code: string) => void;
+}
+
 interface GeneratePrimnoConfigOptions {
     localImport: boolean;
     entryPointName: string;
@@ -90,7 +99,9 @@ export class EntryPoint {
         );
     }
 
-    public async deploy(environment: Environment): Promise<string> {
+    public async deploy(options: EntryPointDeployOptions): Promise<string> {
+        const { environment, deviceCodeCallback } = options;
+
         const deployCfg = this.config.deploy;
             if (isNullOrUndefined(deployCfg)) {
                 throw new Error("No deployment configuration");
@@ -99,8 +110,9 @@ export class EntryPoint {
             const deployer = new EntryPointDeployer(this.distributionPath, this.name, {
                 connectionString: environment.connectionString,
                 solutionUniqueName: deployCfg.solutionUniqueName,
-                webResourcePathFormat: deployCfg.webResourceNameTemplate.entryPoint,
-                projectName: this.config.name
+                webResourcePathFormat: deployCfg.webResourceNameTemplate,
+                projectName: this.config.name,
+                deviceCodeCallback
             });
             
             return await deployer.deploy();

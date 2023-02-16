@@ -7,7 +7,7 @@ import { EntryPoint, EntryPointBuildMode } from "./entry-point";
 import { Npm } from "../utils/npm";
 import { Server } from "./server/server";
 import { Publisher } from "./deployer/publisher";
-import { map } from "rxjs";
+import { map, Observable } from "rxjs";
 import { Action, Task, ResultBuilder } from "../task";
 
 interface EntryPointOptions {
@@ -26,11 +26,11 @@ export interface BuildOptions extends EntryPointOptions {
 }
 
 export interface DeployOptions extends BuildOptions {
-    
+
 }
 
 export interface WatchOptions extends BuildOptions {
-    
+
 }
 
 export interface StartOptions extends EntryPointOptions {
@@ -89,8 +89,8 @@ export class Workspace {
         return Task.new()
             .withConcurrency(true)
             .newLevel("Build entry points")
-                .newActions(entryPointsActions)
-                .withConcurrency(3)
+            .newActions(entryPointsActions)
+            .withConcurrency(3)
             .endLevel();
     }
 
@@ -114,15 +114,25 @@ export class Workspace {
 
         const deployEntryPointsActions = entryPoints.map(ep => <Action>{
             title: `Deploy ${ep.name}`,
-            action: async () => { webResourcesId.push(await ep.deploy(this.environment as Environment)); }
+            action: () => new Observable<string>(observer => {
+                ep.deploy({
+                    environment: this.environment as Environment,
+                    deviceCodeCallback: (url, code) => {
+                        observer.next(`Device authentication required. Open ${url} and enter code ${code}`);
+                    }
+                }).then((webResourceId) => {
+                    webResourcesId.push(webResourceId);
+                    observer.complete();
+                }).catch(err => observer.error(err.message));
+            })
         });
 
         return Task.new()
             .withConcurrency(false)
             .addTaskAsLevel(this.buildTask(options), "Build")
             .newLevel("Deploy entry points")
-                .newActions(deployEntryPointsActions)
-                .withConcurrency(3)
+            .newActions(deployEntryPointsActions)
+            .withConcurrency(3)
             .endLevel()
             .addSubtasks(this.publishTask({ webResourcesId }));
     }
@@ -133,10 +143,15 @@ export class Workspace {
         return Task.new()
             .newAction({
                 title: "Publish",
-                action: async () => {
-                    const publisher = new Publisher({ webResourcesId });
-                    await publisher.publish(this.environment as Environment);
-                }
+                action: () => new Observable<string>(observer => {
+                    const publisher = new Publisher({
+                        webResourcesId,
+                        deviceCodeCallback: (url, code) => observer.next(`Device authentication required. Open ${url} and enter code ${code}`)
+                    });
+                    publisher.publish(this.environment as Environment)
+                    .then(() => observer.complete())
+                    .catch(err => observer.error(err.message));
+                })
             });
     }
 
@@ -151,8 +166,8 @@ export class Workspace {
             .newObservable(
                 "Watching",
                 EntryPoint.watch(entryPoints, options)
-                .pipe(map(e => e.toString()))
-             );
+                    .pipe(map(e => e.toString()))
+            );
     }
 
     public async start(options: StartOptions) {

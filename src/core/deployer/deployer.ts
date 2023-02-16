@@ -14,6 +14,11 @@ export interface DeployerConfig {
     projectName: string;
     connectionString: string;
     solutionUniqueName: string;
+
+    /**
+     * Callback for device code authentication.
+     */
+    deviceCodeCallback: (url: string, code: string) => void;
 }
 
 export abstract class Deployer<TCfg extends DeployerConfig> {
@@ -32,11 +37,15 @@ export abstract class Deployer<TCfg extends DeployerConfig> {
             const d365Client = new D365Client(
                 this.config.connectionString,
                 {
-                    persistence: {
-                        enabled: true,
-                        cacheDirectory: getCacheDir(),
-                        serviceName: "primno-cli",
-                        accountName: this.config.connectionString
+                    oAuth: {
+                        persistence: {
+                            enabled: true,
+                            cacheDirectory: getCacheDir(),
+                            serviceName: "primno-cli",
+                            // TODO: Fix this
+                            accountName: this.config.connectionString
+                        },
+                        deviceCodeCallback: (response) => this.config.deviceCodeCallback(response.verificationUri, response.userCode)
                     }
                 }
             );

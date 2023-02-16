@@ -243,6 +243,9 @@ export class Task {
                             if (typeof result === "string" && !rootTask.hasFailed()) {
                                 t.output = result;
                             }
+                            else {
+                                return result;
+                            }
                         } catch(except) {
                             if (!rootTask.hasFailed()) {
                                 throw except;
