@@ -23,10 +23,7 @@ export interface Deploy {
     entryPoints?: string[],
     environment: string;
     solutionUniqueName: string;
-    webResourceNameTemplate: {
-        primno: string,
-        entryPoint: string
-    }
+    webResourceNameTemplate: string;
 }
 
 export interface WorkspaceConfig {
@@ -66,10 +63,7 @@ export const defaultConfig: WorkspaceConfig = {
     deploy: {
         environment: "dev",
         solutionUniqueName: defaultSolutionUniqueName,
-        webResourceNameTemplate: {
-            primno: "{{editorName}}_/{{projectName}}/js/primno.js",
-            entryPoint: "{{editorName}}_/{{projectName}}/js/{{entryPoint}}.js"
-        }
+        webResourceNameTemplate: "{{editorName}}_/{{projectName}}/js/{{entryPoint}}.js"
     },
     build: {
         
