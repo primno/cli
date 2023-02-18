@@ -1,4 +1,4 @@
-import { D365Client } from "@primno/d365-client";
+import { DataverseClient } from "@primno/dataverse-client";
 import { Environment } from "../../configuration/workspace-configuration";
 import { getCacheDir } from "../../utils/cache";
 import { escapeXml } from "../../utils/common";
@@ -20,7 +20,7 @@ export class Publisher {
     public constructor(private options: PublishOptions) {}
 
     public async publish(environment: Environment): Promise<any> {
-        const d365Client = new D365Client(
+        const client = new DataverseClient(
             environment.connectionString,
             {
                 oAuth: {
@@ -41,6 +41,6 @@ export class Publisher {
             ParameterXml: `<importexportxml><webresources>${webResourcesNodes}</webresources></importexportxml>`
         };
 
-        return await d365Client.executeAction("PublishXml", publishXmlRequest);
+        return await client.executeAction("PublishXml", publishXmlRequest);
     }
 }

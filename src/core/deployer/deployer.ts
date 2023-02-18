@@ -1,4 +1,4 @@
-import { D365Client } from "@primno/d365-client";
+import { DataverseClient } from "@primno/dataverse-client";
 import { SolutionRepository } from "../d365/repository/solution-repository";
 import { readFile } from "fs/promises";
 import { SolutionComponentType } from "../d365/model/add-solution-component";
@@ -34,7 +34,7 @@ export abstract class Deployer<TCfg extends DeployerConfig> {
 
     public async deploy(): Promise<string> {
         try {
-            const d365Client = new D365Client(
+            const client = new DataverseClient(
                 this.config.connectionString,
                 {
                     oAuth: {
@@ -50,8 +50,8 @@ export abstract class Deployer<TCfg extends DeployerConfig> {
                 }
             );
 
-            const solutionRepository = new SolutionRepository(d365Client);
-            const webResourceRepository = new WebResourceRepository(d365Client);
+            const solutionRepository = new SolutionRepository(client);
+            const webResourceRepository = new WebResourceRepository(client);
 
             // Exists ?
             const solution = await solutionRepository.getByName(this.config.solutionUniqueName);

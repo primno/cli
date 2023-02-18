@@ -21,7 +21,6 @@
   "author": "Xavier Monin",
   "license": "ISC",
   "dependencies": {
-    "@primno/d365-client": "^0.6.1-beta.2",
     "@rollup/plugin-commonjs": "^24.0.1",
     "@rollup/plugin-node-resolve": "^15.0.1",
     "@rollup/plugin-typescript": "^11.0.0",

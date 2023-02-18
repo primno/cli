@@ -1,9 +1,9 @@
-import { D365Client } from "@primno/d365-client";
+import { DataverseClient } from "@primno/dataverse-client";
 import { isNullOrUndefined } from "../../../utils/common";
 import { WebResource } from "../model/web-resource";
 
 export class WebResourceRepository {
-    public constructor(private d365Client: D365Client) {}
+    public constructor(private client: DataverseClient) {}
 
     public async createOrUpdate(webResource: WebResource): Promise<string> {
         try {
@@ -25,15 +25,15 @@ export class WebResourceRepository {
     }
 
     public async create(webResource: WebResource) {
-        return await this.d365Client.createRecord("webresourceset", webResource);
+        return await this.client.createRecord("webresourceset", webResource);
     }
 
     public async update(webResource: WebResource) {
-        return await this.d365Client.updateRecord("webresourceset", webResource.webresourceid as string, webResource);
+        return await this.client.updateRecord("webresourceset", webResource.webresourceid as string, webResource);
     }
 
     public async findByName(webResourceName: string): Promise<WebResource | undefined> {
-        const webResources = await this.d365Client.retrieveMultipleRecords<WebResource>(
+        const webResources = await this.client.retrieveMultipleRecords<WebResource>(
             "webresourceset",
             {
                 select: ["webresourceid", "name", "webresourcetype", "content", "description", "displayname"],
