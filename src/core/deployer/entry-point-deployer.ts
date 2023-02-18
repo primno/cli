@@ -1,14 +1,14 @@
 import Mustache from "mustache";
 import { isNullOrUndefined } from "../../utils/common";
 import { Solution } from "../d365/model/solution";
-import { Deployer, DeployerConfig } from "./deployer";
+import { Deployer, DeployerOptions } from "./deployer";
 
-export interface EntryPointDeployerConfig extends DeployerConfig {
+export interface EntryPointDeployerOptions extends DeployerOptions {
     webResourcePathFormat: string;
 }
 
-export class EntryPointDeployer extends Deployer<EntryPointDeployerConfig> {
-    public constructor(sourcePath: string, private entryPoint: string, config: EntryPointDeployerConfig) {
+export class EntryPointDeployer extends Deployer<EntryPointDeployerOptions> {
+    public constructor(sourcePath: string, private entryPoint: string, config: EntryPointDeployerOptions) {
         super(sourcePath, config);
     }
 

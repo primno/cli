@@ -8,11 +8,10 @@ import { isNullOrUndefined } from "../../utils/common";
 import { Solution } from "../d365/model/solution";
 import { getCacheDir } from "../../utils/cache";
 import { defaultConnectionString, defaultSolutionUniqueName } from "../../configuration/workspace-configuration";
+import { DataverseOptions } from "./dataverse-options";
 
-export interface DeployerConfig {
-    // TODO: Change location ?
+export interface DeployerOptions extends DataverseOptions {
     projectName: string;
-    connectionString: string;
     solutionUniqueName: string;
 
     /**
@@ -21,9 +20,10 @@ export interface DeployerConfig {
     deviceCodeCallback: (url: string, code: string) => void;
 }
 
-export abstract class Deployer<TCfg extends DeployerConfig> {
-    public constructor(protected sourcePath: string, protected config: TCfg) {
-        if (config.connectionString == null || config.connectionString === defaultConnectionString) {
+export abstract class Deployer<TOptions extends DeployerOptions> {
+    public constructor(protected sourcePath: string, protected config: TOptions) {
+        if (config.environment?.connectionString == null ||
+            config.environment?.connectionString === defaultConnectionString) {
             throw new Error("Invalid connection string");
         }
 
@@ -35,15 +35,14 @@ export abstract class Deployer<TCfg extends DeployerConfig> {
     public async deploy(): Promise<string> {
         try {
             const client = new DataverseClient(
-                this.config.connectionString,
+                this.config.environment.connectionString,
                 {
                     oAuth: {
                         persistence: {
                             enabled: true,
                             cacheDirectory: getCacheDir(),
                             serviceName: "primno-cli",
-                            // TODO: Fix this
-                            accountName: this.config.connectionString
+                            accountName: this.config.environment.name
                         },
                         deviceCodeCallback: (response) => this.config.deviceCodeCallback(response.verificationUri, response.userCode)
                     }

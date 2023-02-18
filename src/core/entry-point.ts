@@ -108,7 +108,7 @@ export class EntryPoint {
             }
 
             const deployer = new EntryPointDeployer(this.distributionPath, this.name, {
-                connectionString: environment.connectionString,
+                environment,
                 solutionUniqueName: deployCfg.solutionUniqueName,
                 webResourcePathFormat: deployCfg.webResourceNameTemplate,
                 projectName: this.config.name,

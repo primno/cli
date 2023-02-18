@@ -1,9 +1,9 @@
 import { DataverseClient } from "@primno/dataverse-client";
-import { Environment } from "../../configuration/workspace-configuration";
 import { getCacheDir } from "../../utils/cache";
 import { escapeXml } from "../../utils/common";
+import { DataverseOptions } from "./dataverse-options";
 
-export interface PublishOptions {
+export interface PublishOptions extends DataverseOptions {
     webResourcesId: string[];
 
     /**
@@ -19,17 +19,16 @@ interface PublishXmlRequest {
 export class Publisher {
     public constructor(private options: PublishOptions) {}
 
-    public async publish(environment: Environment): Promise<any> {
+    public async publish(): Promise<any> {
         const client = new DataverseClient(
-            environment.connectionString,
+            this.options.environment.connectionString,
             {
                 oAuth: {
                     persistence: {
                         enabled: true,
                         cacheDirectory: getCacheDir(),
                         serviceName: "primno-cli",
-                        // TODO: Fix this
-                        accountName: environment.connectionString
+                        accountName: this.options.environment.name
                     },
                     deviceCodeCallback: (response) => this.options.deviceCodeCallback(response.verificationUri, response.userCode)
                 }

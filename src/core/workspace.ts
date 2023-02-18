@@ -146,9 +146,10 @@ export class Workspace {
                 action: () => new Observable<string>(observer => {
                     const publisher = new Publisher({
                         webResourcesId,
+                        environment: this.environment as Environment,
                         deviceCodeCallback: (url, code) => observer.next(`Device authentication required. Open ${url} and enter code ${code}`)
                     });
-                    publisher.publish(this.environment as Environment)
+                    publisher.publish()
                     .then(() => observer.complete())
                     .catch(err => observer.error(err.message));
                 })
