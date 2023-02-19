@@ -210,7 +210,8 @@ export class Task {
                 collapseErrors: false,
                 showErrorMessage: true,
                 showTimer: true,
-                collapse: false
+                collapse: false,
+                lazy: true // Remove the showing spinner
             },
             ...this.getListROptions(),
             exitOnError: true,
