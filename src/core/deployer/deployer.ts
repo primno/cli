@@ -6,9 +6,9 @@ import { WebResourceType } from "../d365/model/web-resource";
 import { WebResourceRepository } from "../d365/repository/web-resource-repository";
 import { isNullOrUndefined } from "../../utils/common";
 import { Solution } from "../d365/model/solution";
-import { getCacheDir } from "../../utils/cache";
 import { defaultConnectionString, defaultSolutionUniqueName } from "../../configuration/workspace-configuration";
 import { DataverseOptions } from "./dataverse-options";
+import { getClient } from "../../utils/dataverse-client";
 
 export interface DeployerOptions extends DataverseOptions {
     projectName: string;
@@ -34,20 +34,7 @@ export abstract class Deployer<TOptions extends DeployerOptions> {
 
     public async deploy(): Promise<string> {
         try {
-            const client = new DataverseClient(
-                this.config.environment.connectionString,
-                {
-                    oAuth: {
-                        persistence: {
-                            enabled: true,
-                            cacheDirectory: getCacheDir(),
-                            serviceName: "primno-cli",
-                            accountName: this.config.environment.name
-                        },
-                        deviceCodeCallback: (response) => this.config.deviceCodeCallback(response.verificationUri, response.userCode)
-                    }
-                }
-            );
+            const client = getClient(this.config.environment.connectionString, this.config.deviceCodeCallback);
 
             const solutionRepository = new SolutionRepository(client);
             const webResourceRepository = new WebResourceRepository(client);
