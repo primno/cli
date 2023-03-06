@@ -117,7 +117,7 @@ export class Task {
      * Build ListR task.
      * @returns Built ListrTask
      */
-    private getListRTask(): ListrTask | null | ListrTask[] {
+    private getListRTask(): ListrTask | ListrTask[] | null  {
         switch (this.type) {
             case TaskType.Action:
                 return {
@@ -160,7 +160,10 @@ export class Task {
             case TaskType.Observable:
                 return {
                     title: this.taskInfo.title,
-                    task: async (ctx, t) => this.taskInfo.observable
+                    task: (ctx, t) => this.taskInfo.observable,
+                    options: {
+                        persistentOutput: this.taskInfo.persistentOutput
+                    }
                 };
             case TaskType.Level:
             case TaskType.Root:
@@ -198,7 +201,7 @@ export class Task {
     private getListR(): Listr {
         const listRTask = this.getListRTask();
 
-        if (listRTask === null) {
+        if (listRTask == null) {
             throw new Error("An empty task can't be run");
         }
 
@@ -214,7 +217,7 @@ export class Task {
                 lazy: true // Remove the showing spinner
             },
             ...this.getListROptions(),
-            exitOnError: true,
+            // exitOnError: true
         });
 
         return listR;

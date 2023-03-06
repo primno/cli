@@ -121,7 +121,7 @@ export class Bundler {
                     }
                 });
             } catch (except) {
-                observer.error(`Watching error occurred: ${except}`);
+                observer.error(new Error(`Watching error occurred: ${except}`));
             }
             finally {
                 rollupWatcher?.close();

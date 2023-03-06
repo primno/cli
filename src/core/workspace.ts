@@ -123,7 +123,7 @@ export class Workspace {
                 }).then((webResourceId) => {
                     webResourcesId.push(webResourceId);
                     observer.complete();
-                }).catch(err => observer.error(err.message));
+                }).catch(err => observer.error(err));
             })
         });
 
@@ -151,7 +151,7 @@ export class Workspace {
                     });
                     publisher.publish()
                     .then(() => observer.complete())
-                    .catch(err => observer.error(err.message));
+                    .catch(err => observer.error(err));
                 })
             });
     }
