@@ -1,10 +1,10 @@
-import { ConnectionStringClient, DataverseClient } from "@primno/dataverse-client";
+import { ConnStringTokenProvider, DataverseClient } from "@primno/dataverse-client";
 
 const clients: { [key: string]: DataverseClient } = {};
 
 export function getClient(connectionString: string,deviceCodeCallback: (url: string, code: string) => void):  DataverseClient {
     if (clients[connectionString] == null) {
-        const csClient = new ConnectionStringClient(
+        const csClient = new ConnStringTokenProvider(
             connectionString,
             {
                 oAuth: {
