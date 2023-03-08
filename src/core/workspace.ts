@@ -88,10 +88,8 @@ export class Workspace {
 
         return Task.new()
             .withConcurrency(true)
-            .newLevel("Build entry points")
             .newActions(entryPointsActions)
             .withConcurrency(3)
-            .endLevel();
     }
 
     public generate(templateName: string, name: string) {
@@ -131,8 +129,8 @@ export class Workspace {
             .withConcurrency(false)
             .addTaskAsLevel(this.buildTask(options), "Build")
             .newLevel("Deploy entry points")
-            .newActions(deployEntryPointsActions)
-            .withConcurrency(3)
+                .newActions(deployEntryPointsActions)
+                .withConcurrency(3)
             .endLevel()
             .addSubtasks(this.publishTask({ webResourcesId }));
     }
