@@ -1,4 +1,4 @@
-import { CommandBarEventArg, MnComponent, MnOnCommandInvoke, PageType } from "@primno/core";
+import { CommandBarEventArg, MnComponent, MnOnCommandInvoke } from "@primno/core";
 
 /**
  * The {@link ContactComponent} class is defined as a component by the {@link @MnComponent} decorator.
@@ -6,7 +6,7 @@ import { CommandBarEventArg, MnComponent, MnOnCommandInvoke, PageType } from "@p
  */
 @MnComponent({
     scope: {
-        pageType: PageType.list,
+        pageType: "list",
         table: "contact"
     }
 })

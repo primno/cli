@@ -1,4 +1,4 @@
-import { MnComponent, PageType, MnOnFormLoad, MnOnColumnChange, FormEventArg, Config, Input, MnInput, MnConfig, ConfigOf } from "@primno/core";
+import { MnComponent, MnOnFormLoad, MnOnColumnChange, FormEventArg, Config, Input, MnInput, MnConfig, ConfigOf } from "@primno/core";
 
 /**
  * This component notifies the user when a column is changed.
@@ -6,7 +6,7 @@ import { MnComponent, PageType, MnOnFormLoad, MnOnColumnChange, FormEventArg, Co
  */
 @MnComponent({
     scope: {
-        pageType: PageType.record
+        pageType: "record"
     }
 })
 export class NotifyColumnChangeComponent implements Config, Input {

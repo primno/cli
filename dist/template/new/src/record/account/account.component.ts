@@ -1,4 +1,4 @@
-import { MnComponent, PageType, MnOnFormLoad, FormEventArg, MnSubComponent, SubComponent } from "@primno/core";
+import { MnComponent, MnOnFormLoad, FormEventArg, MnSubComponent, SubComponent } from "@primno/core";
 import { NotifyColumnChangeComponent } from "./notify-column-change.component";
 
 /**
@@ -12,7 +12,7 @@ import { NotifyColumnChangeComponent } from "./notify-column-change.component";
      * In this case, the component will be loaded on forms of the account table.
     */
     scope: {
-        pageType: PageType.record,
+        pageType: "record",
         table: "account"
     }
 })
