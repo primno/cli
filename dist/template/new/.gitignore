@@ -5,6 +5,7 @@ node_modules/
 .vscode/
 
 # Primno
+.cache
 dist
 build
 primno.env.json
