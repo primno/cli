@@ -53,5 +53,9 @@
   },
   "peerDependencies": {
     "@primno/core": ">= 0.6.0-beta.0 < 0.7.0-beta.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   }
 }

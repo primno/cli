@@ -2,7 +2,7 @@
 
 [![npm](https://img.shields.io/npm/v/@primno/cli.svg)](https://www.npmjs.com/package/@primno/cli)
 [![npm](https://img.shields.io/npm/l/@primno/cli.svg)](https://github.com/primno/cli/blob/main/LICENSE)
-![build](https://img.shields.io/github/actions/workflow/status/primno/primno/test-core.yml)
+![build](https://img.shields.io/github/actions/workflow/status/primno/cli/build.yml)
 
 Primno CLI is a command-line interface tool for initializing, building, and deploying Primno projects from a command shell.
 
