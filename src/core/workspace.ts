@@ -256,8 +256,6 @@ export class Workspace {
             { dev: true }
         );
 
-        // Peer dependencies !!!
-
         return new Workspace(workspaceDir);
     }
 
