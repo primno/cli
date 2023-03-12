@@ -1,4 +1,4 @@
-export interface Environnement {
+export interface Environment {
     name: string;
     connectionString: string;
 }
@@ -21,12 +21,9 @@ export interface Serve {
 
 export interface Deploy {
     entryPoints?: string[],
-    environnement: string;
+    environment: string;
     solutionUniqueName: string;
-    webResourceNameTemplate: {
-        primno: string,
-        entryPoint: string
-    }
+    webResourceNameTemplate: string;
 }
 
 export interface WorkspaceConfig {
@@ -40,10 +37,13 @@ export interface WorkspaceConfig {
     deploy?: Deploy;
 }
 
-export const defaultEnvironnements: Environnement[] = [
+export const defaultConnectionString = "<set connection string>";
+export const defaultSolutionUniqueName = "<set solution unique name>";
+
+export const defaultEnvironments: Environment[] = [
     {
         name: "dev",
-        connectionString: "<set connection string>"
+        connectionString: defaultConnectionString
     }
 ];
 
@@ -61,12 +61,9 @@ export const defaultConfig: WorkspaceConfig = {
         }
     },
     deploy: {
-        environnement: "dev",
-        solutionUniqueName: "<set solution unique name>",
-        webResourceNameTemplate: {
-            primno: "{{editorName}}_/{{projectName}}/js/primno.js",
-            entryPoint: "{{editorName}}_/{{projectName}}/js/{{entryPoint}}.js"
-        }
+        environment: "dev",
+        solutionUniqueName: defaultSolutionUniqueName,
+        webResourceNameTemplate: "{{editorName}}_/{{projectName}}/js/{{entryPoint}}.js"
     },
     build: {
         

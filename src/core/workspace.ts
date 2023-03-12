@@ -1,14 +1,14 @@
 import fs from "fs";
 import path from "path";
-import { WorkspaceConfig, defaultConfig, defaultEnvironnements, Deploy, Environnement, Serve } from "../configuration/workspace-configuration";
+import { WorkspaceConfig, defaultConfig, defaultEnvironments, Deploy, Environment, Serve } from "../configuration/workspace-configuration";
 import { Template } from "./template/template";
 import { isNullOrUndefined, mergeDeep } from "../utils/common";
 import { EntryPoint, EntryPointBuildMode } from "./entry-point";
 import { Npm } from "../utils/npm";
 import { Server } from "./server/server";
 import { Publisher } from "./deployer/publisher";
-import { map } from "rxjs";
-import { Action, Task } from "../utils/task";
+import { map, Observable } from "rxjs";
+import { Action, Task, ResultBuilder } from "../task";
 
 interface EntryPointOptions {
     entryPoint?: string | string[];
@@ -26,11 +26,11 @@ export interface BuildOptions extends EntryPointOptions {
 }
 
 export interface DeployOptions extends BuildOptions {
-    
+
 }
 
 export interface WatchOptions extends BuildOptions {
-    
+
 }
 
 export interface StartOptions extends EntryPointOptions {
@@ -44,11 +44,11 @@ export interface PublishOptions {
 export class Workspace {
     private _config: WorkspaceConfig;
     private _entryPoints: EntryPoint[];
-    private _environnements: Environnement[];
+    private _environments: Environment[];
 
     public constructor(private dirPath: string) {
         this._config = this.loadConfig();
-        this._environnements = this.loadEnvironnements();
+        this._environments = this.loadEnvironments();
         this._entryPoints = EntryPoint.getEntryPoints(this._config);
     }
 
@@ -64,8 +64,8 @@ export class Workspace {
         return this._entryPoints;
     }
 
-    private get environnement(): Environnement | undefined {
-        return this._environnements.find(e => e.name == this.config.deploy?.environnement);
+    private get environment(): Environment | undefined {
+        return this._environments.find(e => e.name == this.config.deploy?.environment);
     }
 
     public async build(options: BuildOptions) {
@@ -88,10 +88,8 @@ export class Workspace {
 
         return Task.new()
             .withConcurrency(true)
-            .newLevel("Build entrypoints")
-                .newActions(entryPointsActions)
-                .withConcurrency(3)
-            .endLevel();
+            .newActions(entryPointsActions)
+            .withConcurrency(3)
     }
 
     public generate(templateName: string, name: string) {
@@ -106,21 +104,31 @@ export class Workspace {
     private deployTask(options: DeployOptions): Task {
         const entryPoints = this.searchEntryPoint(options.entryPoint);
 
-        if (isNullOrUndefined(this.environnement)) {
-            throw new Error("Environnement not found");
+        if (isNullOrUndefined(this.environment)) {
+            throw new Error("Environment not found");
         }
 
         const webResourcesId: string[] = [];
 
         const deployEntryPointsActions = entryPoints.map(ep => <Action>{
             title: `Deploy ${ep.name}`,
-            action: async () => { webResourcesId.push(await ep.deploy(this.environnement as Environnement)); }
+            action: () => new Observable<string>(observer => {
+                ep.deploy({
+                    environment: this.environment as Environment,
+                    deviceCodeCallback: (url, code) => {
+                        observer.next(`Device authentication required. Open ${url} and enter code ${code}`);
+                    }
+                }).then((webResourceId) => {
+                    webResourcesId.push(webResourceId);
+                    observer.complete();
+                }).catch(err => observer.error(err));
+            })
         });
 
         return Task.new()
             .withConcurrency(false)
             .addTaskAsLevel(this.buildTask(options), "Build")
-            .newLevel("Deploy entrypoints")
+            .newLevel("Deploy entry points")
                 .newActions(deployEntryPointsActions)
                 .withConcurrency(3)
             .endLevel()
@@ -133,10 +141,16 @@ export class Workspace {
         return Task.new()
             .newAction({
                 title: "Publish",
-                action: async () => {
-                    const publisher = new Publisher({ webResourcesId });
-                    await publisher.publish(this.environnement as Environnement);
-                }
+                action: () => new Observable<string>(observer => {
+                    const publisher = new Publisher({
+                        webResourcesId,
+                        environment: this.environment as Environment,
+                        deviceCodeCallback: (url, code) => observer.next(`Device authentication required. Open ${url} and enter code ${code}`)
+                    });
+                    publisher.publish()
+                    .then(() => observer.complete())
+                    .catch(err => observer.error(err));
+                })
             });
     }
 
@@ -151,8 +165,8 @@ export class Workspace {
             .newObservable(
                 "Watching",
                 EntryPoint.watch(entryPoints, options)
-                .pipe(map(e => e.toString()))
-             );
+                    .pipe(map(e => e.toString()))
+            );
     }
 
     public async start(options: StartOptions) {
@@ -182,6 +196,15 @@ export class Workspace {
                 action: () => {
                     const server = new Server(this.config.serve as Serve);
                     const serveInfo = server.serve(this.config.distDir);
+
+                    const resultBuilder = new ResultBuilder();
+                    resultBuilder.addInfo(`Serving on ${serveInfo.schema}://localhost:${serveInfo.port}/`);
+
+                    if (serveInfo.newSelfSignedCert) {
+                        resultBuilder.addWarning(`New self-signed certificate generated. Accept it in your browser.`);
+                    }
+
+                    return resultBuilder.toString()
                 }
             });
     }
@@ -203,7 +226,7 @@ export class Workspace {
         return mergeDeep(defaultConfig as any, JSON.parse(content));
     }
 
-    private loadEnvironnements(): Environnement[] {
+    private loadEnvironments(): Environment[] {
         const content = fs.readFileSync(path.join(this.dirPath, "primno.env.json"), "utf-8");
         return JSON.parse(content) ?? [];
     }
@@ -218,14 +241,20 @@ export class Workspace {
         fs.mkdirSync(workspaceDir);
 
         let config = { ...defaultConfig, name: name };
-        const environnements = defaultEnvironnements;
+        const environments = defaultEnvironments;
 
         const templateApplier = new Template("new");
-        templateApplier.applyTo(workspaceDir, config, environnements);
+        templateApplier.applyTo(workspaceDir, config, environments);
 
         const npm = new Npm(workspaceDir);
-        npm.install(["tslib", "@types/xrm@^9.0.40"], { dev: true });
-        npm.link("@primno/core");
+        npm.install(
+            [
+                "tslib",
+                "@types/xrm",
+                "@primno/core"
+            ],
+            { dev: true }
+        );
 
         return new Workspace(workspaceDir);
     }

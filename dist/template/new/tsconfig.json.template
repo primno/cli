@@ -8,6 +8,7 @@
       "strict": true,
       "strictNullChecks": true,
       "alwaysStrict": true,
+      "emitDecoratorMetadata": true,
       "experimentalDecorators": true,
     },
     "compileOnSave": true,

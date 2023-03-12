@@ -1,19 +1,28 @@
 import { Builder, BuilderOptions } from "./builder/builder";
 import path from "path";
 import glob from "glob";
-import { WorkspaceConfig, Environnement } from "../configuration/workspace-configuration";
+import { WorkspaceConfig, Environment } from "../configuration/workspace-configuration";
 import { EntryPointDeployer } from "./deployer/entry-point-deployer";
 import { isNullOrUndefined } from "../utils/common";
-import { BundleResult } from "./builder/bundler/bundle-result";
 import { Configuration as PrimnoConfig } from "@primno/core";
 import { convertToSnakeCase } from "../utils/naming";
 import { CodeGeneratorMode as EntryPointBuildMode } from "./builder/code-generator";
+import { Result } from "../task";
 
 export { EntryPointBuildMode };
 
 export interface EntryPointBuildOptions {
     production: boolean;
     mode: EntryPointBuildMode;
+}
+
+export interface EntryPointDeployOptions {
+    environment: Environment;
+
+    /**
+     * Callback for device code authentication.
+     */
+    deviceCodeCallback: (url: string, code: string) => void;
 }
 
 interface GeneratePrimnoConfigOptions {
@@ -64,7 +73,7 @@ export class EntryPoint {
         }
     }
 
-    public async build(options: EntryPointBuildOptions): Promise<BundleResult> {
+    public async build(options: EntryPointBuildOptions): Promise<Result> {
         const bundlerOptions = EntryPoint.createBundlerOptions([this], options);
         const bundler = new Builder(bundlerOptions);
         return await bundler.bundle();
@@ -75,7 +84,7 @@ export class EntryPoint {
         options: EntryPointBuildOptions): BuilderOptions[] {
         return entryPoints.map(
             ep => ({
-                // TODO: Change module name here. Prefix with mn_ and convert to snake case.
+                // TODO: Add project name if collisions occur.
                 moduleName: `mn_${convertToSnakeCase(ep.name)}`,
                 sourcePath: ep.sourcePath,
                 destinationPath: ep.distributionPath,
@@ -90,17 +99,20 @@ export class EntryPoint {
         );
     }
 
-    public async deploy(environnement: Environnement): Promise<string> {
+    public async deploy(options: EntryPointDeployOptions): Promise<string> {
+        const { environment, deviceCodeCallback } = options;
+
         const deployCfg = this.config.deploy;
             if (isNullOrUndefined(deployCfg)) {
-                throw new Error("No deploiement configuration");
+                throw new Error("No deployment configuration");
             }
 
             const deployer = new EntryPointDeployer(this.distributionPath, this.name, {
-                connectionString: environnement.connectionString,
+                environment,
                 solutionUniqueName: deployCfg.solutionUniqueName,
-                webResourcePathFormat: deployCfg.webResourceNameTemplate.entryPoint,
-                projectName: this.config.name
+                webResourcePathFormat: deployCfg.webResourceNameTemplate,
+                projectName: this.config.name,
+                deviceCodeCallback
             });
             
             return await deployer.deploy();

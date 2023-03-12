@@ -2,11 +2,11 @@ import commonjs from "@rollup/plugin-commonjs";
 import nodeResolve from "@rollup/plugin-node-resolve";
 import typescript from "@rollup/plugin-typescript";
 import { InputOptions, ModuleFormat, OutputOptions, Plugin, rollup, RollupWatchOptions, watch } from "rollup";
-import { terser } from "rollup-plugin-terser";
+import terser from "@rollup/plugin-terser";
 import { Observable } from "rxjs";
+import { Result, ResultBuilder } from "../../../task";
 import { getPackageJson } from "../../../utils/package";
-import { BundleResult } from "./bundle-result";
-import { BundlerResultBuilder, onWarnWrapper } from "./bundler-result-builder";
+import {  onWarnWrapper } from "./warn-wrapper";
 
 export interface BundlerOptions {
     sourcePath: string;
@@ -60,10 +60,10 @@ export class Bundler {
         });
     }
 
-    public async bundle(): Promise<BundleResult> {
+    public async bundle(): Promise<Result> {
         let rollupBuild;
 
-        const resultBuilder = new BundlerResultBuilder();
+        const resultBuilder = new ResultBuilder(false);
 
         try {
             resultBuilder.start();
@@ -87,12 +87,12 @@ export class Bundler {
         }
     }
 
-    public watch(): Observable<BundleResult> {
+    public watch(): Observable<Result> {
         return new Observable((observer) => {
             let rollupWatcher;
 
             try {
-                const resultBuilder = new BundlerResultBuilder();
+                const resultBuilder = new ResultBuilder(true);
 
                 const options = this.rollupOptions.map(ro => <RollupWatchOptions>{
                     ...ro.input,
@@ -121,7 +121,7 @@ export class Bundler {
                     }
                 });
             } catch (except) {
-                observer.error(`Watching error occured: ${except}`);
+                observer.error(new Error(`Watching error occurred: ${except}`));
             }
             finally {
                 rollupWatcher?.close();

@@ -1,12 +1,12 @@
-import { D365Client } from "@primno/d365-client";
+import { DataverseClient } from "@primno/dataverse-client";
 import { AddSolutionComponentRequest } from "../model/add-solution-component";
 import { Solution } from "../model/solution";
 
 export class SolutionRepository {
-    public constructor(private d365Client: D365Client) {}
+    public constructor(private client: DataverseClient) {}
 
     public async getByName(solutionUniqueName: string): Promise<Solution | undefined> {
-        const solutions = await this.d365Client.retrieveMultipleRecords<Solution>(
+        const solutions = await this.client.retrieveMultipleRecords<Solution>(
             "solutions",
             {
                 top: 1,
@@ -19,6 +19,6 @@ export class SolutionRepository {
     }
 
     public async addSolutionComponent(request: AddSolutionComponentRequest): Promise<any> {
-        return await this.d365Client.executeAction("AddSolutionComponent", request);
+        return await this.client.executeAction("AddSolutionComponent", request);
     }
 }

@@ -21,7 +21,7 @@ node_modules/
 .pnp.*
 
 # Primno CLI
-dist/tsc.js
+dist/tsc.mjs
 build/
 .nyc_output
 .cache

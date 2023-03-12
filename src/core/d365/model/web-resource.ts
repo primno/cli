@@ -1,6 +1,8 @@
 export interface WebResource {
     webresourceid?: string;
     name: string;
+    displayname: string;
+    description: string;
     solutionid: string;
     webresourcetype: WebResourceType;
     content: string;

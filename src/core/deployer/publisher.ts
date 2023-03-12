@@ -1,9 +1,14 @@
-import { D365Client } from "@primno/d365-client";
-import { Environnement } from "../../configuration/workspace-configuration";
 import { escapeXml } from "../../utils/common";
+import { getClient } from "../../utils/dataverse-client";
+import { DataverseOptions } from "./dataverse-options";
 
-export interface PublishOptions {
+export interface PublishOptions extends DataverseOptions {
     webResourcesId: string[];
+
+    /**
+     * Callback for device code authentication.
+     */
+    deviceCodeCallback: (url: string, code: string) => void;
 }
 
 interface PublishXmlRequest {
@@ -13,15 +18,15 @@ interface PublishXmlRequest {
 export class Publisher {
     public constructor(private options: PublishOptions) {}
 
-    public async publish(environnement: Environnement): Promise<any> {
-        const d365Client = new D365Client(environnement.connectionString);
+    public async publish(): Promise<any> {
+        const client = getClient(this.options.environment.connectionString, this.options.deviceCodeCallback);
 
-        const webResoucesNodes = this.options.webResourcesId.map(w => `<webresource>${escapeXml(w)}</webresource>`).join("");
+        const webResourcesNodes = this.options.webResourcesId.map(w => `<webresource>${escapeXml(w)}</webresource>`).join("");
 
         const publishXmlRequest: PublishXmlRequest = {
-            ParameterXml: `<importexportxml><webresources>${webResoucesNodes}</webresources></importexportxml>`
+            ParameterXml: `<importexportxml><webresources>${webResourcesNodes}</webresources></importexportxml>`
         };
 
-        return await d365Client.executeAction("PublishXml", publishXmlRequest);
+        return await client.executeAction("PublishXml", publishXmlRequest);
     }
 }
