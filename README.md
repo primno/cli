@@ -6,6 +6,9 @@
 
 Primno CLI is a command-line interface tool for initializing, building, and deploying Primno projects from a command shell.
 
+> **Important**
+> primno is in beta stage and subject to change.
+
 ## Documentation
 
 The documentation can be found on [https://primno.io](https://primno.io).
