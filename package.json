@@ -1,7 +1,7 @@
 {
   "name": "@primno/cli",
   "version": "0.6.0-beta.0",
-  "description": "Create, build and serve primno workspace",
+  "description": "Command-line interface tool for initializing, building, and deploying Primno projects",
   "main": "dist/index.mjs",
   "files": [
     "dist"
@@ -19,7 +19,7 @@
     "node": ">=16.0.0"
   },
   "author": "Xavier Monin",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@primno/dataverse-client": "^0.8.0-beta.1",
     "@rollup/plugin-commonjs": "^24.0.1",
