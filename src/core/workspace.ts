@@ -195,7 +195,7 @@ export class Workspace {
                 title: "Serve",
                 action: async () => {
                     const server = new Server(this.config.serve as Serve);
-                    const serveInfo = server.serve(this.config.distDir);
+                    const serveInfo = await server.serve(this.config.distDir);
 
                     const resultBuilder = new ResultBuilder();
                     const url = `${serveInfo.schema}://localhost:${serveInfo.port}/`;
