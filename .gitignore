@@ -20,6 +20,9 @@ node_modules/
 .yarn/install-state.gz
 .pnp.*
 
+# Mac OS
+.DS_Store
+
 # Primno CLI
 dist/tsc.mjs
 build/
