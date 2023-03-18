@@ -1,4 +1,3 @@
-import { DataverseClient } from "@primno/dataverse-client";
 import { SolutionRepository } from "../d365/repository/solution-repository";
 import { readFile } from "fs/promises";
 import { SolutionComponentType } from "../d365/model/add-solution-component";
