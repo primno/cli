@@ -117,6 +117,7 @@ export class Workspace {
                     environment: this.environment as Environment,
                     deviceCodeCallback: (url, code) => {
                         observer.next(`Device authentication required. Open ${url} and enter code ${code}`);
+                        open(url);
                     }
                 }).then((webResourceId) => {
                     webResourcesId.push(webResourceId);
@@ -145,7 +146,10 @@ export class Workspace {
                     const publisher = new Publisher({
                         webResourcesId,
                         environment: this.environment as Environment,
-                        deviceCodeCallback: (url, code) => observer.next(`Device authentication required. Open ${url} and enter code ${code}`)
+                        deviceCodeCallback: (url, code) => {
+                            observer.next(`Device authentication required. Open ${url} and enter code ${code}`);
+                            open(url);
+                        }
                     });
                     publisher.publish()
                     .then(() => observer.complete())
