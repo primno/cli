@@ -9,6 +9,7 @@ import { Server } from "./server/server";
 import { Publisher } from "./deployer/publisher";
 import { map, Observable } from "rxjs";
 import { Action, Task, ResultBuilder } from "../task";
+import open from "open";
 
 interface EntryPointOptions {
     entryPoint?: string | string[];
@@ -193,15 +194,22 @@ export class Workspace {
         return Task.new()
             .newAction({
                 title: "Serve",
-                action: () => {
+                action: async () => {
                     const server = new Server(this.config.serve as Serve);
                     const serveInfo = server.serve(this.config.distDir);
 
                     const resultBuilder = new ResultBuilder();
-                    resultBuilder.addInfo(`Serving on ${serveInfo.schema}://localhost:${serveInfo.port}/`);
+                    const url = `${serveInfo.schema}://localhost:${serveInfo.port}/`;
+                    resultBuilder.addInfo(`Serving on ${url}/`);
 
                     if (serveInfo.newSelfSignedCert) {
                         resultBuilder.addWarning(`New self-signed certificate generated. Accept it in your browser.`);
+                        try {
+                            await open(url);
+                        }
+                        catch {
+                            resultBuilder.addWarning(`Unable to open browser. Please open ${url} manually.`);
+                        }
                     }
 
                     return resultBuilder.toString()

@@ -24,7 +24,6 @@
   "license": "MIT",
   "dependencies": {
     "@primno/dataverse-client": "^0.8.1-beta.1",
-    "rollup": "^3.19.1",
     "@rollup/plugin-commonjs": "^24.0.1",
     "@rollup/plugin-node-resolve": "^15.0.1",
     "@rollup/plugin-terser": "^0.4.0",
@@ -38,6 +37,8 @@
     "glob": "^9.3.0",
     "listr2": "^5.0.8",
     "mustache": "^4.2.0",
+    "open": "^8.4.2",
+    "rollup": "^3.19.1",
     "rxjs": "^7.8.0",
     "selfsigned": "^2.1.1",
     "terser": "^5.16.6",
