@@ -88,7 +88,6 @@ export class Workspace {
         });
 
         return Task.new()
-            .withConcurrency(true)
             .newActions(entryPointsActions)
             .withConcurrency(3)
     }
@@ -200,7 +199,7 @@ export class Workspace {
 
                     const resultBuilder = new ResultBuilder();
                     const url = `${serveInfo.schema}://localhost:${serveInfo.port}/`;
-                    resultBuilder.addInfo(`Serving on ${url}/`);
+                    resultBuilder.addInfo(`Serving on ${url}`);
 
                     if (serveInfo.newSelfSignedCert) {
                         resultBuilder.addWarning(`New self-signed certificate generated. Accept it in your browser.`);

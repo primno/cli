@@ -45,7 +45,9 @@ export class Builder {
 
     private addModulesMessages(bundlerResult: ResultBuilder) {
         this.options.forEach(o => {
-            bundlerResult.addInfo(`Module name is ${o.moduleName}. Eg: Call ${o.moduleName}.onFormLoad for onload event.`);
+            if (o.mode !== CodeGeneratorMode.primnoImportLocal) {
+                bundlerResult.addInfo(`External function prefix is ${o.moduleName}. Eg: Call ${o.moduleName}.onFormLoad to trigger the form load event.`);
+            }
         });
     }
 
