@@ -2,14 +2,16 @@
   "devDependencies": {},
   "name": "{{ name }}",
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=16",
+    "npm": ">=7"
   },
   "scripts": {
     "start": "mn start",
     "build:prod": "mn build -p",
     "build:dev": "mn build",
     "watch": "mn watch",
-    "deploy": "mn deploy"
+    "deploy:dev": "mn deploy"
+    "deploy:prod": "mn deploy -p"
   },
   "dependencies": {}
 }

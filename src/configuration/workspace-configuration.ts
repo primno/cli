@@ -37,7 +37,7 @@ export interface WorkspaceConfig {
     deploy?: Deploy;
 }
 
-export const defaultConnectionString = "<set connection string>";
+export const defaultConnectionString = "AuthType=OAuth;Url=<Url>;UserName=<UserName>;TokenCacheStorePath=./.cache/token.json";
 export const defaultSolutionUniqueName = "<set solution unique name>";
 
 export const defaultEnvironments: Environment[] = [

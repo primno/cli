@@ -1,17 +1,15 @@
 {
     "compilerOptions": {
-      "noImplicitAny": true,
-      "target": "ES2020",
+      "target": "ES6",
       "module": "esnext",
       "moduleResolution": "Node",
       "esModuleInterop": true,
       "strict": true,
-      "strictNullChecks": true,
-      "alwaysStrict": true,
       "emitDecoratorMetadata": true,
       "experimentalDecorators": true,
+      "skipLibCheck": true,
+      "forceConsistentCasingInFileNames": true
     },
-    "compileOnSave": true,
     "include": [
       "{{ sourceRoot }}"
     ]
