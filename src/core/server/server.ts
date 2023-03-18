@@ -26,6 +26,9 @@ export class Server {
         const app = express();
         app.use(cors());
         app.use(express.static(directory));
+        app.get("/", (_req, res) => {
+            res.send("Development server of Primno is ready");
+        });
 
         let newSelfSignedCert = false;
 
@@ -56,7 +59,7 @@ export class Server {
             if (except.code === "EADDRINUSE") {
                 throw new Error(`Port ${this.config.port} is already in use`);
             }
-            
+
             throw new Error(except.message);
         }
 
