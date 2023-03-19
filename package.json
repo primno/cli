@@ -8,6 +8,7 @@
     "lib",
     "dist"
   ],
+  "type": "module",
   "repository": "github:primno/cli",
   "scripts": {
     "start": "rollup -c --configPlugin typescript && node dist/index.mjs",
