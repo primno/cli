@@ -1,8 +1,8 @@
 import fs from 'fs';
 import Mustache from 'mustache';
 import path from 'path';
-import { WorkspaceConfig, Environment } from '../../configuration/workspace-configuration';
-import { getDirName } from '../../utils/common';
+import { WorkspaceConfig, Environment } from '../../config/workspace';
+import { getSchemaDirName, getTemplateDirName } from '../../utils/dir';
 
 enum EntryType {
     directory,
@@ -42,7 +42,7 @@ export class Template {
     private entries: Entry[];
 
     public constructor(templateName: string) {
-        this.dir = `${getDirName()}/template/${templateName}`;
+        this.dir = getTemplateDirName(templateName);
         this.entries = this.readDir(this.dir);
     }
 
@@ -80,7 +80,8 @@ export class Template {
                     fs.writeFileSync(destinationPath.substring(0, destinationPath.lastIndexOf(".")), transformResult);
                     break;
                 case EntryType.config:
-                    fs.writeFileSync(destinationPath, JSON.stringify(config, null, 4));
+                    const configWithSchema = { $schema: `file:${getSchemaDirName("primno.json")}`, ...config };
+                    fs.writeFileSync(destinationPath, JSON.stringify(configWithSchema, null, 4));
                     break;
                 case EntryType.environment:
                     fs.writeFileSync(destinationPath, JSON.stringify(environments, null, 4));

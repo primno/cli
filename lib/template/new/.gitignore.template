@@ -1,0 +1,14 @@
+# Node.js
+node_modules/
+
+# Mac OS
+.DS_Store
+
+# VSCode
+.vscode/
+
+# Primno
+.cache/
+dist/
+build/
+primno.env.json

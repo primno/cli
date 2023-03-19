@@ -1,12 +1,10 @@
-import { DataverseClient } from "@primno/dataverse-client";
 import { SolutionRepository } from "../d365/repository/solution-repository";
 import { readFile } from "fs/promises";
 import { SolutionComponentType } from "../d365/model/add-solution-component";
 import { WebResourceType } from "../d365/model/web-resource";
 import { WebResourceRepository } from "../d365/repository/web-resource-repository";
-import { isNullOrUndefined } from "../../utils/common";
 import { Solution } from "../d365/model/solution";
-import { defaultConnectionString, defaultSolutionUniqueName } from "../../configuration/workspace-configuration";
+import { defaultConnectionString, defaultSolutionUniqueName } from "../../config/workspace";
 import { DataverseOptions } from "./dataverse-options";
 import { getClient } from "../../utils/dataverse-client";
 
@@ -42,7 +40,7 @@ export abstract class Deployer<TOptions extends DeployerOptions> {
             // Exists ?
             const solution = await solutionRepository.getByName(this.config.solutionUniqueName);
 
-            if (isNullOrUndefined(solution)) {
+            if (solution == null) {
                 throw new Error("Solution not found");
             }
 

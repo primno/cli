@@ -1,14 +1,15 @@
 import fs from "fs";
 import path from "path";
-import { WorkspaceConfig, defaultConfig, defaultEnvironments, Deploy, Environment, Serve } from "../configuration/workspace-configuration";
+import { WorkspaceConfig, defaultConfig, defaultEnvironments, Environment, Serve } from "../config/workspace";
 import { Template } from "./template/template";
-import { isNullOrUndefined, mergeDeep } from "../utils/common";
+import { mergeDeep } from "../utils/common";
 import { EntryPoint, EntryPointBuildMode } from "./entry-point";
 import { Npm } from "../utils/npm";
 import { Server } from "./server/server";
 import { Publisher } from "./deployer/publisher";
 import { map, Observable } from "rxjs";
 import { Action, Task, ResultBuilder } from "../task";
+import open from "open";
 
 interface EntryPointOptions {
     entryPoint?: string | string[];
@@ -87,7 +88,6 @@ export class Workspace {
         });
 
         return Task.new()
-            .withConcurrency(true)
             .newActions(entryPointsActions)
             .withConcurrency(3)
     }
@@ -104,7 +104,7 @@ export class Workspace {
     private deployTask(options: DeployOptions): Task {
         const entryPoints = this.searchEntryPoint(options.entryPoint);
 
-        if (isNullOrUndefined(this.environment)) {
+        if (this.environment == null) {
             throw new Error("Environment not found");
         }
 
@@ -117,6 +117,7 @@ export class Workspace {
                     environment: this.environment as Environment,
                     deviceCodeCallback: (url, code) => {
                         observer.next(`Device authentication required. Open ${url} and enter code ${code}`);
+                        open(url);
                     }
                 }).then((webResourceId) => {
                     webResourcesId.push(webResourceId);
@@ -145,7 +146,10 @@ export class Workspace {
                     const publisher = new Publisher({
                         webResourcesId,
                         environment: this.environment as Environment,
-                        deviceCodeCallback: (url, code) => observer.next(`Device authentication required. Open ${url} and enter code ${code}`)
+                        deviceCodeCallback: (url, code) => {
+                            observer.next(`Device authentication required. Open ${url} and enter code ${code}`);
+                            open(url);
+                        }
                     });
                     publisher.publish()
                     .then(() => observer.complete())
@@ -193,15 +197,22 @@ export class Workspace {
         return Task.new()
             .newAction({
                 title: "Serve",
-                action: () => {
+                action: async () => {
                     const server = new Server(this.config.serve as Serve);
-                    const serveInfo = server.serve(this.config.distDir);
+                    const serveInfo = await server.serve(this.config.distDir);
 
                     const resultBuilder = new ResultBuilder();
-                    resultBuilder.addInfo(`Serving on ${serveInfo.schema}://localhost:${serveInfo.port}/`);
+                    const url = `${serveInfo.schema}://localhost:${serveInfo.port}/`;
+                    resultBuilder.addInfo(`Serving on ${url}`);
 
                     if (serveInfo.newSelfSignedCert) {
                         resultBuilder.addWarning(`New self-signed certificate generated. Accept it in your browser.`);
+                        try {
+                            await open(url);
+                        }
+                        catch {
+                            resultBuilder.addWarning(`Unable to open browser. Please open ${url} manually.`);
+                        }
                     }
 
                     return resultBuilder.toString()
@@ -210,7 +221,7 @@ export class Workspace {
     }
 
     private searchEntryPoint(entryPoint?: string | string[]) {
-        if (isNullOrUndefined(entryPoint)) {
+        if (entryPoint == null) {
             return this._entryPoints;
         }
 

@@ -1,4 +1,4 @@
-import { Environment } from "../../configuration/workspace-configuration";
+import { Environment } from "../../config/workspace";
 
 export interface DataverseOptions {
     environment: Environment;

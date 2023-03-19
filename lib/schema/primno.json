@@ -1,0 +1,138 @@
+{
+  "$ref": "#/definitions/WorkspaceConfig",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "Build": {
+      "additionalProperties": false,
+      "description": "Build configuration.",
+      "properties": {
+        "entryPoints": {
+          "description": "List of entry points to build.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "Certificate": {
+      "additionalProperties": false,
+      "description": "Certificate configuration.",
+      "properties": {
+        "pfx": {
+          "description": "Path to the certificate file.",
+          "type": "string"
+        },
+        "pfxPassword": {
+          "description": "Password of the certificate.",
+          "type": "string"
+        },
+        "selfSigned": {
+          "description": "Use a self signed certificate.",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "Deploy": {
+      "additionalProperties": false,
+      "description": "Deployment configuration.",
+      "properties": {
+        "entryPoints": {
+          "description": "List of entry points to deploy.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "environment": {
+          "description": "Environment to deploy to. See primno.env.json.",
+          "type": "string"
+        },
+        "solutionUniqueName": {
+          "description": "Unique name of the solution to deploy to.",
+          "type": "string"
+        },
+        "webResourceNameTemplate": {
+          "description": "Template for the web resource name. The template will be formatted with the following parameters:\n- {editorName}: Editor prefix (without the _).\n- {projectName}: Project name.\n- {entryPoint}: Entry point name.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "environment",
+        "solutionUniqueName",
+        "webResourceNameTemplate"
+      ],
+      "type": "object"
+    },
+    "Serve": {
+      "additionalProperties": false,
+      "description": "Serve configuration.",
+      "properties": {
+        "certificate": {
+          "$ref": "#/definitions/Certificate",
+          "description": "Certificate to use for https."
+        },
+        "https": {
+          "description": "Https mode.",
+          "type": "boolean"
+        },
+        "port": {
+          "default": 12357,
+          "description": "Port to serve on.",
+          "type": "number"
+        }
+      },
+      "type": "object"
+    },
+    "WorkspaceConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "$schema": {
+          "type": "string"
+        },
+        "build": {
+          "$ref": "#/definitions/Build",
+          "description": "Build configuration."
+        },
+        "deploy": {
+          "$ref": "#/definitions/Deploy",
+          "description": "Deployment configuration."
+        },
+        "distDir": {
+          "description": "Directory of the build output.",
+          "type": "string"
+        },
+        "entryPointDir": {
+          "description": "Directory of the entry points. An entry point is a file that will be published as a web resource and loaded by the browser.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of the project.",
+          "type": "string"
+        },
+        "serve": {
+          "$ref": "#/definitions/Serve",
+          "description": "Serve configuration."
+        },
+        "sourceRoot": {
+          "description": "Root directory of the source code.",
+          "type": "string"
+        },
+        "version": {
+          "description": "Version of the project.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "version",
+        "sourceRoot",
+        "entryPointDir",
+        "distDir"
+      ],
+      "type": "object"
+    }
+  }
+}

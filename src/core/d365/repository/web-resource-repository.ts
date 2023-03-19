@@ -1,5 +1,4 @@
 import { DataverseClient } from "@primno/dataverse-client";
-import { isNullOrUndefined } from "../../../utils/common";
 import { WebResource } from "../model/web-resource";
 
 export class WebResourceRepository {
@@ -9,7 +8,7 @@ export class WebResourceRepository {
         try {
             const existingWR = await this.findByName(webResource.name);
 
-            if (isNullOrUndefined(existingWR)) {
+            if (existingWR == null) {
                 const result = await this.create(webResource);
                 return result.webresourceid as string;
             }
