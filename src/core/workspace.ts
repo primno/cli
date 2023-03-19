@@ -1,8 +1,8 @@
 import fs from "fs";
 import path from "path";
-import { WorkspaceConfig, defaultConfig, defaultEnvironments, Deploy, Environment, Serve } from "../configuration/workspace-configuration";
+import { WorkspaceConfig, defaultConfig, defaultEnvironments, Environment, Serve } from "../configuration/workspace-configuration";
 import { Template } from "./template/template";
-import { isNullOrUndefined, mergeDeep } from "../utils/common";
+import { mergeDeep } from "../utils/common";
 import { EntryPoint, EntryPointBuildMode } from "./entry-point";
 import { Npm } from "../utils/npm";
 import { Server } from "./server/server";
@@ -104,7 +104,7 @@ export class Workspace {
     private deployTask(options: DeployOptions): Task {
         const entryPoints = this.searchEntryPoint(options.entryPoint);
 
-        if (isNullOrUndefined(this.environment)) {
+        if (this.environment == null) {
             throw new Error("Environment not found");
         }
 
@@ -221,7 +221,7 @@ export class Workspace {
     }
 
     private searchEntryPoint(entryPoint?: string | string[]) {
-        if (isNullOrUndefined(entryPoint)) {
+        if (entryPoint == null) {
             return this._entryPoints;
         }
 

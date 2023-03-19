@@ -3,7 +3,6 @@ import path from "path";
 import glob from "glob";
 import { WorkspaceConfig, Environment } from "../configuration/workspace-configuration";
 import { EntryPointDeployer } from "./deployer/entry-point-deployer";
-import { isNullOrUndefined } from "../utils/common";
 import { Configuration as PrimnoConfig } from "@primno/core";
 import { convertToSnakeCase } from "../utils/naming";
 import { CodeGeneratorMode as EntryPointBuildMode } from "./builder/code-generator";
@@ -103,7 +102,7 @@ export class EntryPoint {
         const { environment, deviceCodeCallback } = options;
 
         const deployCfg = this.config.deploy;
-            if (isNullOrUndefined(deployCfg)) {
+            if (deployCfg == null) {
                 throw new Error("No deployment configuration");
             }
 

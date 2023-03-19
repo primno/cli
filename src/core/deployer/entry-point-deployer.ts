@@ -1,5 +1,4 @@
 import Mustache from "mustache";
-import { isNullOrUndefined } from "../../utils/common";
 import { Solution } from "../d365/model/solution";
 import { Deployer, DeployerOptions } from "./deployer";
 
@@ -13,7 +12,7 @@ export class EntryPointDeployer extends Deployer<EntryPointDeployerOptions> {
     }
 
     protected override getWebResourceName(solution: Solution) {
-        if (isNullOrUndefined(solution?.publisherid?.customizationprefix)) {
+        if (solution?.publisherid?.customizationprefix == null) {
             throw new Error("Customization prefix not found");
         }
 

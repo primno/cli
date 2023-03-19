@@ -1,13 +1,9 @@
-export function isNullOrUndefined<T>(obj: T | null | undefined): obj is null | undefined {
-    return typeof obj === "undefined" || obj === null;
-}
-
 /**
  * Indicates whether an element is a javascript object.
  * @param item
  */
  export function isObject(item: unknown): item is Record<string, unknown> {
-    return (isNullOrUndefined(item) == false && typeof item === 'object' && !Array.isArray(item));
+    return (item != null && typeof item === 'object' && !Array.isArray(item));
 }
 
 /**
