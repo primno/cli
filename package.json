@@ -4,6 +4,8 @@
   "description": "Command-line interface tool for initializing, building, and deploying Primno projects",
   "main": "dist/index.mjs",
   "files": [
+    "bin",
+    "lib",
     "dist"
   ],
   "repository": "github:primno/cli",
@@ -13,8 +15,8 @@
     "watch": "rollup -cw --configPlugin typescript"
   },
   "bin": {
-    "mn": "dist/index.mjs",
-    "primno": "dist/index.mjs"
+    "mn": "./bin/bootstrap.mjs",
+    "primno": "./bin/bootstrap.mjs"
   },
   "engines": {
     "node": ">=16",

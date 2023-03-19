@@ -24,7 +24,6 @@ node_modules/
 .DS_Store
 
 # Primno CLI
-dist/tsc.mjs
-build/
+dist/
 .nyc_output
-.cache
+.cache/

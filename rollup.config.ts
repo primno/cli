@@ -29,7 +29,7 @@ export default function(
             input: 'src/index.ts',
             plugins,
             external,
-            output: { format: 'esm', file: 'dist/tsc.mjs' }
+            output: { format: 'esm', file: 'dist/mn.mjs' }
         }
     ]
 }

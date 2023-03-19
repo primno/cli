@@ -10,7 +10,7 @@
     "build:prod": "mn build -p",
     "build:dev": "mn build",
     "watch": "mn watch",
-    "deploy:dev": "mn deploy"
+    "deploy:dev": "mn deploy",
     "deploy:prod": "mn deploy -p"
   },
   "dependencies": {}

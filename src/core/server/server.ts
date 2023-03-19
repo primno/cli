@@ -27,7 +27,7 @@ export class Server {
         app.use(cors());
         app.use(express.static(directory));
         app.get("/", (_req, res) => {
-            res.send("Development server of Primno is ready");
+            res.send("Primno: Development server is ready.");
         });
 
         let newSelfSignedCert = false;
