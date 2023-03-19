@@ -1,4 +1,4 @@
-name: Publish Core
+name: Publish
 
 on:
   release:
