@@ -30,3 +30,17 @@ export function getTemplateDirName(templateName?: string) {
         return path.join(getLibDirName(), "template");
     }
 }
+
+/**
+ * Gets the schema directory name.
+ * @param schemaName Schema name. If not specified, the root directory of the schemas is returned.
+ * @returns Schema directory name.
+ */
+export function getSchemaDirName(schemaName?: string) {
+    if (schemaName != null) {
+        return path.join(getLibDirName(), "schema", schemaName);
+    }
+    else {
+        return path.join(getLibDirName(), "schema");
+    }
+}

@@ -13,7 +13,8 @@
   "scripts": {
     "start": "rollup -c --configPlugin typescript && node dist/index.mjs",
     "build": "rollup -c --configPlugin typescript",
-    "watch": "rollup -cw --configPlugin typescript"
+    "watch": "rollup -cw --configPlugin typescript",
+    "gen-schema": "npx ts-json-schema-generator -p ./src/config/workspace.ts -t WorkspaceConfig -o ./lib/schema/primno.json -f ./tsconfig.json"
   },
   "bin": {
     "mn": "./bin/bootstrap.mjs",
