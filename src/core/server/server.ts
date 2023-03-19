@@ -1,6 +1,6 @@
 import cors from "cors";
 import express from "express";
-import { Serve } from "../../configuration/workspace-configuration";
+import { Serve } from "../../config/workspace";
 import https from "https";
 import http from "http";
 import { getCertificate } from "./self-signed-cert";

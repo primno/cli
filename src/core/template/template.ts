@@ -1,7 +1,7 @@
 import fs from 'fs';
 import Mustache from 'mustache';
 import path from 'path';
-import { WorkspaceConfig, Environment } from '../../configuration/workspace-configuration';
+import { WorkspaceConfig, Environment } from '../../config/workspace';
 import { getTemplateDirName } from '../../utils/dir';
 
 enum EntryType {

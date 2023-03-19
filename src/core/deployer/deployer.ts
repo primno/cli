@@ -4,7 +4,7 @@ import { SolutionComponentType } from "../d365/model/add-solution-component";
 import { WebResourceType } from "../d365/model/web-resource";
 import { WebResourceRepository } from "../d365/repository/web-resource-repository";
 import { Solution } from "../d365/model/solution";
-import { defaultConnectionString, defaultSolutionUniqueName } from "../../configuration/workspace-configuration";
+import { defaultConnectionString, defaultSolutionUniqueName } from "../../config/workspace";
 import { DataverseOptions } from "./dataverse-options";
 import { getClient } from "../../utils/dataverse-client";
 

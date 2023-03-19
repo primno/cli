@@ -1,7 +1,7 @@
 import { Builder, BuilderOptions } from "./builder/builder";
 import path from "path";
 import glob from "glob";
-import { WorkspaceConfig, Environment } from "../configuration/workspace-configuration";
+import { WorkspaceConfig, Environment } from "../config/workspace";
 import { EntryPointDeployer } from "./deployer/entry-point-deployer";
 import { Configuration as PrimnoConfig } from "@primno/core";
 import { convertToSnakeCase } from "../utils/naming";

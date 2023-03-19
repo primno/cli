@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { WorkspaceConfig, defaultConfig, defaultEnvironments, Environment, Serve } from "../configuration/workspace-configuration";
+import { WorkspaceConfig, defaultConfig, defaultEnvironments, Environment, Serve } from "../config/workspace";
 import { Template } from "./template/template";
 import { mergeDeep } from "../utils/common";
 import { EntryPoint, EntryPointBuildMode } from "./entry-point";
