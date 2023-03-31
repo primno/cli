@@ -257,12 +257,14 @@ export class Workspace {
         const templateApplier = new Template("new");
         templateApplier.applyTo(workspaceDir, config, environments);
 
+        console.log(`Install dependencies...`);
         const npm = new Npm(workspaceDir);
         npm.install(
             [
                 "tslib",
                 "@types/xrm",
-                "@primno/core"
+                "@primno/core",
+                "@primno/cli"
             ],
             { dev: true }
         );

@@ -80,7 +80,7 @@ export class Template {
                     fs.writeFileSync(destinationPath.substring(0, destinationPath.lastIndexOf(".")), transformResult);
                     break;
                 case EntryType.config:
-                    const configWithSchema = { $schema: `file:${getSchemaDirName("primno.json")}`, ...config };
+                    const configWithSchema = { $schema: getSchemaDirName("primno.json"), ...config };
                     fs.writeFileSync(destinationPath, JSON.stringify(configWithSchema, null, 4));
                     break;
                 case EntryType.environment:
