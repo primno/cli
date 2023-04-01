@@ -4,9 +4,10 @@ import glob from "glob";
 import { WorkspaceConfig, Environment } from "../config/workspace";
 import { EntryPointDeployer } from "./deployer/entry-point-deployer";
 import { Configuration as PrimnoConfig } from "@primno/core";
-import { convertToSnakeCase } from "../utils/naming";
 import { CodeGeneratorMode as EntryPointBuildMode } from "./builder/code-generator";
 import { Result } from "../task";
+import Mustache from "mustache";
+import { convertToSnakeCase } from "../utils/naming";
 
 export { EntryPointBuildMode };
 
@@ -78,13 +79,27 @@ export class EntryPoint {
         return await bundler.bundle();
     }
 
+    /**
+     * Generate module name from the template.
+     * @param format Format of the module name.
+     * @param entryPointName Name of the entry point.
+     * @param config Workspace configuration.
+     * @returns Module name.
+     */
+    private static generateModuleName(format: string, entryPointName: string, config: WorkspaceConfig): string {
+        const moduleFormatOptions = {
+            "projectName": convertToSnakeCase(config.name),
+            "entryPoint": convertToSnakeCase(entryPointName)
+        };
+        return Mustache.render(format, moduleFormatOptions);
+    }
+
     private static createBundlerOptions(
         entryPoints: EntryPoint[],
         options: EntryPointBuildOptions): BuilderOptions[] {
         return entryPoints.map(
             ep => ({
-                // TODO: Add project name if collisions occur.
-                moduleName: `mn_${convertToSnakeCase(ep.name)}`,
+                moduleName: EntryPoint.generateModuleName(ep.config.build?.moduleNameTemplate!, ep.name, ep.config),
                 sourcePath: ep.sourcePath,
                 destinationPath: ep.distributionPath,
                 production: options.production,

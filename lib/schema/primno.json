@@ -12,6 +12,11 @@
             "type": "string"
           },
           "type": "array"
+        },
+        "moduleNameTemplate": {
+          "default": "mn_{projectName}_{entryPoint}",
+          "description": "Module name template.",
+          "type": "string"
         }
       },
       "type": "object"
@@ -21,7 +26,7 @@
       "description": "Certificate configuration.",
       "properties": {
         "pfx": {
-          "description": "Path to the certificate file.",
+          "description": "Path to the certificate file in pfx format.",
           "type": "string"
         },
         "pfxPassword": {
