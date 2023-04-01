@@ -6,7 +6,8 @@ import terser from "@rollup/plugin-terser";
 import { Observable } from "rxjs";
 import { Result, ResultBuilder } from "../../../task";
 import { getPackageJson } from "../../../utils/package";
-import {  onWarnWrapper } from "./warn-wrapper";
+import { onWarnWrapper } from "./warn-wrapper";
+import babel from "@rollup/plugin-babel";
 
 export interface BundlerOptions {
     sourcePath: string;
@@ -33,21 +34,32 @@ export class Bundler {
         if (!Array.isArray(options)) {
             options = [options];
         }
-        
-        const productionPlugins = [terser()];
+
+        const productionPlugins = [
+            terser()
+        ];
 
         this.rollupOptions = options.map(opt => <RollupOption>{
             input: {
                 input: opt.sourcePath,
                 plugins: [
                     nodeResolve(),
-                    commonjs(),
                     typescript({
                         tsconfig: "./tsconfig.json",
                         noEmitOnError: false
                     }),
+                    babel({
+                        babelHelpers: "bundled",
+                        presets: [
+                            ["@babel/preset-env", {
+                                "useBuiltIns": "usage",
+                                "corejs": 3
+                            }]
+                        ]
+                    }),
+                    commonjs(),
                     ...opt.production ? productionPlugins : [],
-                    ...opt.plugins ?? []
+                    ...opt.plugins ?? [],
                 ],
                 external,
             },
