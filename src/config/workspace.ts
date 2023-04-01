@@ -18,6 +18,12 @@ export interface Environment {
  */
 export interface Build {
     /**
+     * Module name template.
+     * @default mn_{projectName}_{entryPoint}
+     */
+    moduleNameTemplate?: string;
+
+    /**
      * List of entry points to build.
      */
     entryPoints?: string[];
@@ -165,6 +171,6 @@ export const defaultConfig: WorkspaceConfig = {
         webResourceNameTemplate: "{{editorName}}_/{{projectName}}/js/{{entryPoint}}.js"
     },
     build: {
-        
+        moduleNameTemplate: "mn_{{projectName}}_{{entryPoint}}"
     }
 };

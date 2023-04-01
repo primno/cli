@@ -37,10 +37,12 @@ export function getTemplateDirName(templateName?: string) {
  * @returns Schema directory name.
  */
 export function getSchemaDirName(schemaName?: string) {
+    const primnoCliDir = path.posix.join(".", "node_modules", "@primno" , "cli", "lib");
+
     if (schemaName != null) {
-        return path.join(getLibDirName(), "schema", schemaName);
+        return path.posix.join(primnoCliDir, "schema", schemaName);
     }
     else {
-        return path.join(getLibDirName(), "schema");
+        return path.posix.join(primnoCliDir, "schema");
     }
 }
