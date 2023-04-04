@@ -30,7 +30,11 @@ export abstract class Deployer<TOptions extends DeployerOptions> {
         }
     }
 
-    public async deploy(): Promise<string> {
+    /**
+     * Deploy the JS web resource.
+     * @returns Web resource id or undefined if the web resource does not need to be updated.
+     */
+    public async deploy(): Promise<string | undefined> {
         try {
             const client = getClient(this.config.environment.connectionString, this.config.deviceCodeCallback);
 
@@ -57,13 +61,15 @@ export abstract class Deployer<TOptions extends DeployerOptions> {
                 solutionid: solution.solutionid
             });
 
-            await solutionRepository.addSolutionComponent({
-                ComponentId: webResourceId,
-                ComponentType: SolutionComponentType.WebResource,
-                DoNotIncludeSubcomponents: false,
-                AddRequiredComponents: false,
-                SolutionUniqueName: this.config.solutionUniqueName
-            });
+            if (webResourceId != null) {
+                await solutionRepository.addSolutionComponent({
+                    ComponentId: webResourceId,
+                    ComponentType: SolutionComponentType.WebResource,
+                    DoNotIncludeSubcomponents: false,
+                    AddRequiredComponents: false,
+                    SolutionUniqueName: this.config.solutionUniqueName
+                });
+            }
 
             return webResourceId;
         }

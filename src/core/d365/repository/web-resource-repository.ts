@@ -4,7 +4,12 @@ import { WebResource } from "../model/web-resource";
 export class WebResourceRepository {
     public constructor(private client: DataverseClient) {}
 
-    public async createOrUpdate(webResource: WebResource): Promise<string> {
+    /**
+     * Create or update a web resource.
+     * @param webResource Web resource to create or update.
+     * @returns Web resource id or undefined if the web resource does not need to be updated.
+     */
+    public async createOrUpdate(webResource: WebResource): Promise<string | undefined> {
         try {
             const existingWR = await this.findByName(webResource.name);
 
@@ -13,9 +18,11 @@ export class WebResourceRepository {
                 return result.webresourceid as string;
             }
             else {
-                webResource.webresourceid = existingWR.webresourceid;
-                await this.update(webResource);
-                return webResource.webresourceid as string;
+                if (webResource.content !== existingWR.content) {    
+                    webResource.webresourceid = existingWR.webresourceid;
+                    await this.update(webResource);
+                    return webResource.webresourceid as string;
+                }
             }
         }
         catch(except: any) {

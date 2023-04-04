@@ -113,7 +113,12 @@ export class EntryPoint {
         );
     }
 
-    public async deploy(options: EntryPointDeployOptions): Promise<string> {
+    /**
+     * Deploy the entry point to the environment.
+     * @param options Deployment options.
+     * @returns Id of the web resource or undefined if the web resource don't need to be updated.
+     */
+    public async deploy(options: EntryPointDeployOptions): Promise<string | undefined> {
         const { environment, deviceCodeCallback } = options;
 
         const deployCfg = this.config.deploy;
