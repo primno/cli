@@ -120,7 +120,9 @@ export class Workspace {
                         open(url);
                     }
                 }).then((webResourceId) => {
-                    webResourcesId.push(webResourceId);
+                    if (webResourceId != null) {
+                        webResourcesId.push(webResourceId);
+                    }
                     observer.complete();
                 }).catch(err => observer.error(err));
             })
@@ -143,6 +145,11 @@ export class Workspace {
             .newAction({
                 title: "Publish",
                 action: () => new Observable<string>(observer => {
+                    if (webResourcesId.length == 0) {
+                        observer.complete();
+                        return;
+                    }
+                    
                     const publisher = new Publisher({
                         webResourcesId,
                         environment: this.environment as Environment,
