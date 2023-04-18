@@ -1,4 +1,5 @@
-import { ConnStringTokenProvider, DataverseClient } from "@primno/dataverse-client";
+import { ConnStringTokenProvider } from "@primno/dataverse-auth";
+import { DataverseClient } from "@primno/dataverse-client";
 
 const clients: { [key: string]: DataverseClient } = {};
 
