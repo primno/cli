@@ -1,0 +1,13 @@
+{
+  "name": "@primno/test-name",
+  "private": true,
+  "dependencies": {
+    "@primno/test-dependencies": "1.2.3"
+  },
+  "devDependencies": {
+    "@primno/test-dev-dependencies": "1.2.3"
+  },
+  "peerDependencies": {
+    "@primno/test-peer-dependencies": "1.2.3"
+  }
+}
