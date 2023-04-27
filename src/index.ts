@@ -17,4 +17,7 @@ program
     .addCommand(buildCommand)
     .addCommand(watchCommand)
     .addCommand(deployCommand)
-    .parseAsync(process.argv);
+    .parseAsync(process.argv)
+    .catch((err) => {
+        process.exitCode = 1;
+    });
