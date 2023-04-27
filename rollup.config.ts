@@ -16,9 +16,15 @@ const external: string[] = [
 const plugins = [
     typescript({ compilerOptions: { rootDir: "./src" } }),
     commonjs(),
-    resolve(),
-    terser()
+    resolve()
 ];
+
+const watchMode = process.env.ROLLUP_WATCH === "true";
+const sourcemap = watchMode ? "inline" : false;
+
+if (!watchMode) {
+    plugins.push(terser());
+}
 
 export default function(
     //command: Record<string, unknown>
@@ -29,7 +35,7 @@ export default function(
             input: 'src/index.ts',
             plugins,
             external,
-            output: { format: 'esm', file: 'dist/mn.mjs' }
+            output: { format: 'esm', file: 'dist/mn.mjs', sourcemap }
         }
     ]
 }
