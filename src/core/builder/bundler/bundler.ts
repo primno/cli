@@ -8,6 +8,7 @@ import { Result, ResultBuilder } from "../../../task";
 import { getPackageJson } from "../../../utils/package";
 import { onWarnWrapper } from "./warn-wrapper";
 import babel from "@rollup/plugin-babel";
+import { buildMessage } from "./message-builder";
 
 export interface BundlerOptions {
     sourcePath: string;
@@ -120,7 +121,10 @@ export class Bundler {
                             resultBuilder.start();
                             break;
                         case "ERROR":
-                            resultBuilder.addError(`${event.error.message} at ${event.error.loc?.line}, ${event.error.loc?.column}`)
+                            {
+                                const message = buildMessage(event.error);
+                                resultBuilder.addError(message);
+                            }
                             break;
                         case "END":
                             resultBuilder.end();
