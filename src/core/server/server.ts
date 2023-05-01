@@ -30,7 +30,7 @@ export class Server {
         const app = express();
         app
             .use(cors())
-            .use("build", express.static(directory))
+            .use("/build", express.static(directory))
             .get("/", (_req, res) => {
                 res.send(`<h1>Primno</h1><p>Development server is ready.</p>` +
                     `<p>Navigate to the <a href="/redirect">D365 / Power Apps environment</a>.</p>`

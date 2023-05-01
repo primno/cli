@@ -59,7 +59,7 @@ export class EntryPoint {
         if (localMode) {
             return {
                 moduleResolverConfig: {
-                    uri: `https://localhost:${port}/${entryPointName}.js`,
+                    uri: `https://localhost:${port}/build/${entryPointName}.js`,
                     type: "import"
                 }
             };
