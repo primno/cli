@@ -13,10 +13,14 @@ export interface ServeInfo {
     newSelfSignedCert: boolean;
 }
 
+interface ServeOptions extends Serve {
+    environmentUrl: string;
+}
+
 export class Server {
     private server?: http.Server | https.Server | null;
 
-    public constructor(private config: Serve) { }
+    public constructor(private config: ServeOptions) { }
 
     public async serve(directory: string): Promise<ServeInfo> {
         if (this.server != null) {
@@ -24,11 +28,17 @@ export class Server {
         }
 
         const app = express();
-        app.use(cors());
-        app.use(express.static(directory));
-        app.get("/", (_req, res) => {
-            res.send("Primno: Development server is ready.");
-        });
+        app
+            .use(cors())
+            .use("build", express.static(directory))
+            .get("/", (_req, res) => {
+                res.send(`<h1>Primno</h1><p>Development server is ready.</p>` +
+                    `<p>Navigate to the <a href="/redirect">D365 / Power Apps environment</a>.</p>`
+                );
+            })
+            .get("/redirect", (_req, res) => {
+                res.redirect(this.config.environmentUrl);
+            });
 
         let newSelfSignedCert = false;
 

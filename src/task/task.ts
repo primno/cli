@@ -1,6 +1,7 @@
 import { Listr, ListrTask } from "listr2";
 import { Observable } from "rxjs";
 import { ActionHandler, TaskInfo, TaskType } from "./task-info";
+import { exitCode } from "process";
 
 export interface Action {
     title: string;
@@ -228,10 +229,6 @@ export class Task {
      */
     public async run() {
         const listR = this.getListR();
-
-        try {
-            await listR.run();
-        }
-        catch (except) {}
+        await listR.run();
     }
 }

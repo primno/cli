@@ -18,9 +18,9 @@ export class ContactComponent {
      * 
      * To works, this event must be manually added in the command bar of `contact` table
      * by calling the `mn_main.onCommandInvoke` method with the parameters:
-     * - A string parameter with the name `hello` (the name of the command)
      * - SelectedControl
      * - PrimaryControl
+     * - A string parameter with the name `hello` (the name of the command)
      */
     @MnOnCommandInvoke("hello")
     public sayHello(eventArg: CommandBarEventArg) {
