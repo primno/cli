@@ -10,6 +10,7 @@ import { Publisher } from "./deployer/publisher";
 import { map, Observable } from "rxjs";
 import { Action, Task, ResultBuilder } from "../task";
 import open from "open";
+import { getEnvironmentUrl } from "../utils/dataverse-client";
 
 interface EntryPointOptions {
     entryPoint?: string | string[];
@@ -34,8 +35,12 @@ export interface WatchOptions extends BuildOptions {
 
 }
 
-export interface StartOptions extends EntryPointOptions {
+export interface StartOptions extends EntryPointOptions, ServeOptions {
+    
+}
 
+export interface ServeOptions {
+    openInBrowser: boolean;
 }
 
 export interface PublishOptions {
@@ -192,7 +197,7 @@ export class Workspace {
                 production: false,
                 mode: EntryPointBuildMode.primnoImportLocal
             }), "Deploy")
-            .addSubtasks(this.serveTask())
+            .addSubtasks(this.serveTask({ openInBrowser: options.openInBrowser }))
             .addSubtasks(this.watchTask({
                 entryPoint: options.entryPoint,
                 mode: EntryPointBuildMode.moduleOnly,
@@ -200,25 +205,33 @@ export class Workspace {
             }));
     }
 
-    private serveTask(): Task {
+    private serveTask(options: ServeOptions): Task {
         return Task.new()
             .newAction({
                 title: "Serve",
                 action: async () => {
-                    const server = new Server(this.config.serve as Serve);
+                    const server = new Server({
+                        ...this.config.serve,
+                        environmentUrl: getEnvironmentUrl(this.environment?.connectionString!)
+                    });
+
                     const serveInfo = await server.serve(this.config.distDir);
 
                     const resultBuilder = new ResultBuilder();
                     const url = `${serveInfo.schema}://localhost:${serveInfo.port}/`;
+                    const redirectUrl = `${url}redirect`;
                     resultBuilder.addInfo(`Serving on ${url}`);
 
                     if (serveInfo.newSelfSignedCert) {
                         resultBuilder.addWarning(`New self-signed certificate generated. Accept it in your browser.`);
+                    }
+
+                    if (options.openInBrowser) {
                         try {
-                            await open(url);
+                            await open(redirectUrl);
                         }
                         catch {
-                            resultBuilder.addWarning(`Unable to open browser. Please open ${url} manually.`);
+                            resultBuilder.addWarning(`Unable to open browser. Please open ${redirectUrl} manually.`);
                         }
                     }
 
