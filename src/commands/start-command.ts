@@ -17,5 +17,5 @@ async function startAction(options: Options) {
 
 export const startCommand = new Command("start")
     .description("deploy primno in local development mode and run a web server that watches the entry points files")
-    .option("--no-open", "do not open the browser", false)
+    .option("--no-open", "do not open the browser")
     .action(startAction);
