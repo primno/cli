@@ -60,5 +60,7 @@ export class NotifyColumnChangeComponent implements Config, Input {
             "INFO",
             "columnValueChanged"
         );
+
+        this.previousValue = columnValue;
     }
 }
