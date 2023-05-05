@@ -262,20 +262,25 @@ export class Workspace {
         return JSON.parse(content) ?? [];
     }
 
-    public static create(dirPath: string, name: string): Workspace {
+    public static async create(dirPath: string, name: string): Promise<Workspace> {
         const workspaceDir = path.join(dirPath, name);
 
         if (fs.existsSync(workspaceDir)) {
-            throw new Error("Directory already exists");
+            throw new Error("The workspace already exists");
         }
-
-        fs.mkdirSync(workspaceDir);
 
         let config = { ...defaultConfig, name: name };
         const environments = defaultEnvironments;
 
-        const templateApplier = new Template("new");
-        templateApplier.applyTo(workspaceDir, config, environments);
+        const templateApplier = new Template("workspace", workspaceDir);
+        await templateApplier.run(
+            "new",
+            name,
+            {
+                workspaceConfig: JSON.stringify(config, null, 2),
+                environments: JSON.stringify(environments, null, 2)
+            }
+        );
 
         console.log(`Install dependencies...`);
         const npm = new Npm(workspaceDir);

@@ -1,3 +1,6 @@
+---
+to: tsconfig.json
+---
 {
     "compilerOptions": {
       "target": "ES6",
@@ -11,6 +14,6 @@
       "forceConsistentCasingInFileNames": true
     },
     "include": [
-      "{{ sourceRoot }}"
+      "src"
     ]
 }

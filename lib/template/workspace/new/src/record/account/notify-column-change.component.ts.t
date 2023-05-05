@@ -1,3 +1,6 @@
+---
+to: src/record/account/notify-column-change.component.ts
+---
 import { MnComponent, MnOnFormLoad, MnOnColumnChange, FormEventArg, Config, Input, MnInput, MnConfig, ConfigOf } from "@primno/core";
 
 /**

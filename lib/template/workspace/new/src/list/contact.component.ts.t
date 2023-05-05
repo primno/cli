@@ -1,3 +1,6 @@
+---
+to: src/list/contact.component.ts
+---
 import { CommandBarEventArg, MnComponent, MnOnCommandInvoke } from "@primno/core";
 
 /**

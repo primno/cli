@@ -1,3 +1,6 @@
+---
+to: .browserslistrc
+---
 # Contains the list of browsers that are supported by the project.
 # Polyfills are added to the build based on this list.
 # By default, the list contains the browsers that are supported by Dynamics 365 / Power Apps.

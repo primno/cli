@@ -1,3 +1,6 @@
+---
+to: src/list/list.module.ts
+---
 import { MnModule } from "@primno/core";
 import { ContactComponent } from "./contact.component";
 

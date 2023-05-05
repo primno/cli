@@ -1,3 +1,6 @@
+---
+to: src/record/record.module.ts
+---
 import { MnModule } from "@primno/core";
 import { AccountComponent } from "./account/account.component";
 import { NotifyColumnChangeComponent } from "./account/notify-column-change.component";

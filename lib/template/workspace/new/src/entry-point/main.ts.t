@@ -1,3 +1,6 @@
+---
+to: src/entry-point/main.ts
+---
 /** Read README.md first */
 
 import { MnModule } from "@primno/core";

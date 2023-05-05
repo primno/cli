@@ -1,0 +1,4 @@
+---
+to: primno.json
+---
+<%- workspaceConfig %>

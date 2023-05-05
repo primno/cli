@@ -1,6 +1,9 @@
+---
+to: package.json
+---
 {
   "devDependencies": {},
-  "name": "{{ name }}",
+  "name": "<%= name %>",
   "engines": {
     "node": ">=16",
     "npm": ">=7"

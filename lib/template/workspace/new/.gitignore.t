@@ -1,3 +1,6 @@
+---
+to: .gitignore
+---
 # Node.js
 node_modules/
 
