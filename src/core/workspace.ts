@@ -253,8 +253,13 @@ export class Workspace {
     }
 
     private loadConfig(): WorkspaceConfig {
-        const content = fs.readFileSync(path.join(this.dirPath, "primno.json"), "utf-8");
-        return mergeDeep(defaultConfig as any, JSON.parse(content));
+        try {
+            const content = fs.readFileSync(path.join(this.dirPath, "primno.json"), "utf-8");
+            return mergeDeep(defaultConfig as any, JSON.parse(content));
+        }
+        catch {
+            throw new Error("Unable to load workspace configuration");
+        }
     }
 
     private loadEnvironments(): Environment[] {
@@ -269,14 +274,14 @@ export class Workspace {
             throw new Error("The workspace already exists");
         }
 
-        let config = { ...defaultConfig, name: name };
+        let config = { ...defaultConfig, name };
         const environments = defaultEnvironments;
 
         const templateApplier = new Template("workspace", workspaceDir);
         await templateApplier.run(
             "new",
-            name,
             {
+                name,
                 workspaceConfig: JSON.stringify(config, null, 2),
                 environments: JSON.stringify(environments, null, 2)
             }

@@ -1,9 +1,9 @@
 import { Command } from 'commander';
 import { Workspace } from '../core/workspace';
 
-function newAction(projectName: string) {
+async function newAction(projectName: string) {
     try {
-        Workspace.create(".", projectName);
+        await Workspace.create(".", projectName);
     }
     catch (except: any) {
         console.error(except.message);

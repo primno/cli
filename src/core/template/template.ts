@@ -1,7 +1,10 @@
-import { Logger, availableActions, engine } from "hygen";
 import { getTemplateDirName } from '../../utils/dir';
 import inquirer from "inquirer";
-import { RunnerConfig } from "hygen/dist/types";
+import nodePlop from "node-plop";
+import path from 'path';
+import ora from 'ora';
+
+const progressSpinner = ora();
 
 export class Template {
     public constructor(
@@ -13,30 +16,58 @@ export class Template {
     }
 
     public getActions() {
-        return availableActions(this.templateName);
+        // return availableActions(this.templateName);
     }
 
     /**
      * Run template action
      * @param actionName Action name, eg: new, update, delete
      * @param name Name of target. eg: project name, component name
-     * @param locals Variables to pass to template
+     * @param variables Variables to pass to the generator
      */
-    public async run(actionName: string, name: string, locals: Record<string, string>) {
-        const config: RunnerConfig = {
-            cwd: this.destinationDir,
-            logger: new Logger(console.log.bind(console)),
-            templates: getTemplateDirName(),
-            createPrompter: () => inquirer as any,
-            localsDefaults: locals,
-            debug: true,
-            exec: () => {
-                throw new Error(`Exec is not authorized`);
+    public async run(actionName: string, variables: Record<string, string>) {
+        const plopFile = path.resolve(getTemplateDirName(this.templateName), "plopfile.js");
+        const plop = await nodePlop(
+            plopFile,
+            {
+                destBasePath: this.destinationDir,
+                force: false
             }
-        };
+        );
+        const generator = plop.getGenerator(actionName);
 
-        const args = [this.templateName, actionName, name];
+        let answers = [];
+        
+        if (generator.prompts != null) {
+            answers = await generator.runPrompts();
+        }
+        
+        const result = await generator.runActions(
+            { ...variables, ...answers },
+            {
+                onComment: (msg) => {
+                    progressSpinner.info(msg);
+                    progressSpinner.start();
+                },
+                onSuccess: (change) => {
+                    progressSpinner.succeed(` ${change.type} ${change.path}`);
+                    progressSpinner.start();
+                },
+                onFailure: (fail) => {
+                    const line = [fail.type, fail.path, fail.error || fail.message]
+                        .filter(f => f != null)
+                        .join(" ");
+                    
+                    progressSpinner.fail(` ${line}`);
+                    progressSpinner.start();
+                }
+            }
+        );
 
-        return await engine(args, config);
+        progressSpinner.stop();
+
+        if (result.failures.length > 0) {
+            throw new Error("Failed to run template action");
+        }
     }
 }

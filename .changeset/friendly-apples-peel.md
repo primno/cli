@@ -2,5 +2,5 @@
 "@primno/cli": minor
 ---
 
-Use of hygen as template engine.
-The creation of workspaces is now done with hygen.
+Use of plop as template engine.
+The creation of workspaces is now done with plop.
