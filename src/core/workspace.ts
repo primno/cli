@@ -98,8 +98,8 @@ export class Workspace {
     }
 
     public async generate(templateName: string, name: string) {
-        // const template = new Template(templateName, this.dirPath);
-        // await template.run("new", name);
+        const template = new Template(templateName, this.dirPath);
+        await template.run("new", { name });
     }
 
     public async deploy(options: DeployOptions) {

@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import figlet from "figlet";
 import { program } from 'commander';
-import { startCommand, newCommand, buildCommand, watchCommand, deployCommand } from './commands';
+import { startCommand, newCommand, buildCommand, watchCommand, deployCommand, generateCommand } from './commands';
 
 console.log(
     chalk.rgb(238,167,74)(figlet.textSync("Primno CLI"))
@@ -17,6 +17,7 @@ program
     .addCommand(buildCommand)
     .addCommand(watchCommand)
     .addCommand(deployCommand)
+    .addCommand(generateCommand)
     .parseAsync(process.argv)
     .catch((err) => {
         process.exitCode = 1;

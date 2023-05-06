@@ -1,0 +1,16 @@
+import { MnComponent, MnOnFormLoad, FormEventArg } from '@primno/core';
+
+@MnComponent({
+    scope: {
+        pageType: "{{ pageType }}",
+        {{#if table}}
+        table: "{{ table }}"
+        {{/if}}
+    }
+})
+export class {{ pascalCase name }}Component {
+    @MnOnFormLoad()
+    public onFormLoad(eventArg: FormEventArg) {
+        Xrm.Navigation.openAlertDialog({ text: "Hello from {{ name }} component" });
+    }
+}
