@@ -97,9 +97,9 @@ export class Workspace {
             .withConcurrency(3)
     }
 
-    public generate(templateName: string, name: string) {
-        /*const template = new Template(templateName);
-        template.applyTo(this.dirPath, this.config);*/
+    public async generate(templateName: string, name: string) {
+        // const template = new Template(templateName, this.dirPath);
+        // await template.run("new", name);
     }
 
     public async deploy(options: DeployOptions) {
@@ -282,9 +282,9 @@ export class Workspace {
             }
         );
 
-        console.log(`Install dependencies...`);
+        console.log(`Installing packages ...`);
         const npm = new Npm(workspaceDir);
-        npm.install(
+        await npm.install(
             [
                 "tslib",
                 "@types/xrm",
@@ -293,6 +293,7 @@ export class Workspace {
             ],
             { dev: true }
         );
+        console.log(`Packages installed`);
 
         return new Workspace(workspaceDir);
     }
