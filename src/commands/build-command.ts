@@ -6,7 +6,7 @@ interface Options {
     production: boolean;
 }
 
-async function buildAction(entryPoint: string | undefined, options: Options) {
+async function buildAction(options: Options) {
     if (!Workspace.isWorkspace(".")) {
         console.error("This action must be run in a primno project directory");
         return;
@@ -14,14 +14,12 @@ async function buildAction(entryPoint: string | undefined, options: Options) {
 
     const currentWs = new Workspace(".");
     await currentWs.build({
-        entryPoint,
         production: options.production,
         mode: EntryPointBuildMode.primnoEmbedded
     });
 };
 
 export const buildCommand = new Command('build')
-    .argument("[entrypoint]", "entrypoint to build")
     .option("-p, --production", "production mode", false)
     .description("build project")
     .action(buildAction);

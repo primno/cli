@@ -20,5 +20,6 @@ program
     .addCommand(generateCommand)
     .parseAsync(process.argv)
     .catch((err) => {
+        console.error(chalk.red(err.message));
         process.exitCode = 1;
     });

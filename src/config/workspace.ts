@@ -19,14 +19,9 @@ export interface Environment {
 export interface Build {
     /**
      * Module name template.
-     * @default mn_{projectName}_{entryPoint}
+     * @default mn_{projectName}
      */
     moduleNameTemplate?: string;
-
-    /**
-     * List of entry points to build.
-     */
-    entryPoints?: string[];
 }
 
 /**
@@ -73,11 +68,6 @@ export interface Serve {
  */
 export interface Deploy {
     /**
-     * List of entry points to deploy.
-     */
-    entryPoints?: string[];
-
-    /**
      * Environment to deploy to. See primno.env.json.
      */
     environment: string;
@@ -92,7 +82,7 @@ export interface Deploy {
      * The template will be formatted with the following parameters:
      * - {editorName}: Editor prefix (without the _).
      * - {projectName}: Project name.
-     * - {entryPoint}: Entry point name.
+     * @default {{editorName}}_/js/{{projectName}}.js
      */
     webResourceNameTemplate: string;
 }
@@ -114,12 +104,6 @@ export interface WorkspaceConfig {
      * Root directory of the source code.
      */
     sourceRoot: string;
-
-    /**
-     * Directory of the entry points.
-     * An entry point is a file that will be published as a web resource and loaded by the browser.
-     */
-    entryPointDir: string;
 
     /**
      * Directory of the build output.
@@ -156,7 +140,6 @@ export const defaultConfig: WorkspaceConfig = {
     name: "name",
     version: "1.0.0",
     sourceRoot: "src",
-    entryPointDir: "entry-point",
     distDir: "dist",
     serve: {
         https: true,
@@ -168,9 +151,9 @@ export const defaultConfig: WorkspaceConfig = {
     deploy: {
         environment: "dev",
         solutionUniqueName: defaultSolutionUniqueName,
-        webResourceNameTemplate: "{{editorName}}_/{{projectName}}/js/{{entryPoint}}.js"
+        webResourceNameTemplate: "{{editorName}}_/js/{{projectName}}.js"
     },
     build: {
-        moduleNameTemplate: "mn_{{projectName}}_{{entryPoint}}"
+        moduleNameTemplate: "mn_{{projectName}}"
     }
 };

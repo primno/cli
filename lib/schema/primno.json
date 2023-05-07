@@ -6,15 +6,8 @@
       "additionalProperties": false,
       "description": "Build configuration.",
       "properties": {
-        "entryPoints": {
-          "description": "List of entry points to build.",
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
         "moduleNameTemplate": {
-          "default": "mn_{projectName}_{entryPoint}",
+          "default": "mn_{projectName}",
           "description": "Module name template.",
           "type": "string"
         }
@@ -44,13 +37,6 @@
       "additionalProperties": false,
       "description": "Deployment configuration.",
       "properties": {
-        "entryPoints": {
-          "description": "List of entry points to deploy.",
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
         "environment": {
           "description": "Environment to deploy to. See primno.env.json.",
           "type": "string"
@@ -60,7 +46,8 @@
           "type": "string"
         },
         "webResourceNameTemplate": {
-          "description": "Template for the web resource name. The template will be formatted with the following parameters:\n- {editorName}: Editor prefix (without the _).\n- {projectName}: Project name.\n- {entryPoint}: Entry point name.",
+          "default": "{{editorName}}_/js/{{projectName}}.js",
+          "description": "Template for the web resource name. The template will be formatted with the following parameters:\n- {editorName}: Editor prefix (without the _).\n- {projectName}: Project name.",
           "type": "string"
         }
       },
@@ -109,10 +96,6 @@
           "description": "Directory of the build output.",
           "type": "string"
         },
-        "entryPointDir": {
-          "description": "Directory of the entry points. An entry point is a file that will be published as a web resource and loaded by the browser.",
-          "type": "string"
-        },
         "name": {
           "description": "Name of the project.",
           "type": "string"
@@ -134,7 +117,6 @@
         "name",
         "version",
         "sourceRoot",
-        "entryPointDir",
         "distDir"
       ],
       "type": "object"
