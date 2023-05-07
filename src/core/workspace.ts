@@ -51,7 +51,10 @@ export class Workspace {
     public constructor(private dirPath: string) {
         this._config = this.loadConfig();
         this._environments = this.loadEnvironments();
-        this._entryPoint = new EntryPoint(path.resolve(this._config.sourceRoot, "app.entry.ts"), this._config);
+        this._entryPoint = new EntryPoint(
+            path.join(dirPath, this._config.sourceRoot, "app.entry.ts"),
+            this._config
+        );
     }
 
     public get name(): string {
