@@ -127,7 +127,7 @@ export interface WorkspaceConfig {
 }
 
 export const defaultConnectionString = "AuthType=OAuth;Url=<Url>;UserName=<UserName>;TokenCacheStorePath=./.cache/token.json";
-export const defaultSolutionUniqueName = "<set solution unique name>";
+export const defaultSolutionUniqueName = "<set_solution_unique_name>";
 
 export const defaultEnvironments: Environment[] = [
     {
