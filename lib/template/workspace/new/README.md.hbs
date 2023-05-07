@@ -21,7 +21,8 @@ The initial file structure looks like this:
 │   ├── record # Record (main form, quick create form) components
 │   │   ├── account # Account component and its sub-components
 │   │   │   ├── account.component.ts # Component that runs when on account form.
-│   │   │   └── notify-column-change.component.ts # Sub-component of AccountComponent
+│   │   │   └── notify-column-change # Sub-component of AccountComponent
+│   │   │       └── notify-column-change.component.ts # Notify the user when a column value is changed
 │   │   └── record.module.ts # Main module of the components tree of page type "list"
 │   └── app.entry.ts # Entry point for Power Apps. Contains the main module that load list and record modules.
 ├── package.json
