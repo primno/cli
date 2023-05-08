@@ -68,11 +68,6 @@ export interface Serve {
  */
 export interface Deploy {
     /**
-     * Environment to deploy to. See primno.env.json.
-     */
-    environment: string;
-
-    /**
      * Unique name of the solution to deploy to.
      */
     solutionUniqueName: string;
@@ -104,6 +99,11 @@ export interface WorkspaceConfig {
      * Root directory of the source code.
      */
     sourceRoot: string;
+
+    /**
+     * Name of the Power Apps / D365 environment stored in `primno.env.json`.
+     */
+    environment: string;
 
     /**
      * Directory of the build output.
@@ -141,6 +141,7 @@ export const defaultConfig: WorkspaceConfig = {
     version: "1.0.0",
     sourceRoot: "src",
     distDir: "dist",
+    environment: "dev",
     serve: {
         https: true,
         port: 12357,
@@ -149,7 +150,6 @@ export const defaultConfig: WorkspaceConfig = {
         }
     },
     deploy: {
-        environment: "dev",
         solutionUniqueName: defaultSolutionUniqueName,
         webResourceNameTemplate: "{{editorName}}_/js/{{projectName}}.js"
     },

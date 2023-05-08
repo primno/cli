@@ -70,7 +70,7 @@ export class Workspace {
     }
 
     private get environment(): Environment | undefined {
-        return this._environments.find(e => e.name == this.config.deploy?.environment);
+        return this._environments.find(e => e.name == this.config.environment);
     }
 
     public async build(options: BuildOptions) {
