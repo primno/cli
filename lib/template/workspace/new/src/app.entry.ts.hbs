@@ -1,0 +1,28 @@
+/** Read README.md first */
+
+import { MnModule } from "@primno/core";
+import { ListModule } from "./list/list.module";
+import { RecordModule } from "./record/record.module";
+
+/**
+ * This is the entry point of your application.
+ * A entry point corresponds to a JS web resource that will be deployed to PowerApps / Dynamics 365.
+ * The main module must be exported here to be loaded and run by Primno.
+*/
+
+/**
+ * The {@link AppModule} class is defined as a module by the {@link MnModule} decorator.
+ * A module is a container of components / sub-modules.
+ * 
+ * {@link AppModule} is the primary module and imports the {@link RecordModule} and {@link ListModule}.
+ * The `bootstrap` components defined in these sub-modules will be started when this web resource is loaded.
+ * 
+ * {@link RecordModule} is the primary module for the page type `record` while {@link ListModule} is for the page type `list`.
+ * A list page is a page that displays a list of records, like a main grid or a sub-grid,
+ * while a record page is a page that displays a single record, like a form or a quick create form.
+ * Each page type have their own component tree, this means that a list component cannot contain a record component and vice-versa.
+ */
+@MnModule({
+    imports: [RecordModule, ListModule]
+})
+export class AppModule {}

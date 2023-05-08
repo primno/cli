@@ -1,12 +1,12 @@
 import { MnModule } from "@primno/core";
 import { AccountComponent } from "./account/account.component";
-import { NotifyColumnChangeComponent } from "./account/notify-column-change.component";
+import { NotifyColumnChangeComponent } from "./account/notify-column-change/notify-column-change.component";
 
 /**
  * The {@link RecordModule} class is defined as a module by the {@link MnModule} decorator.
  * A module is a container of components.
  * 
- * This module is the primary module for the page type `record`,
+ * This module is the primary module for the page type `record` (only available in forms),
  * so all components that will be used in the page type `record` must be declared in this module or in its sub-modules.
  */
 @MnModule({

@@ -26,7 +26,7 @@ export class Template {
      * @param variables Variables to pass to the generator
      */
     public async run(actionName: string, variables: Record<string, string>) {
-        const plopFile = path.resolve(getTemplateDirName(this.templateName), "plopfile.js");
+        const plopFile = path.join(getTemplateDirName(this.templateName), "plopfile.js");
         const plop = await nodePlop(
             plopFile,
             {
