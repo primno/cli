@@ -1,7 +1,7 @@
 import commonjs from "@rollup/plugin-commonjs";
 import nodeResolve from "@rollup/plugin-node-resolve";
 import typescript from "@rollup/plugin-typescript";
-import { InputOptions, ModuleFormat, OutputOptions, Plugin, rollup, RollupWatchOptions, watch } from "rollup";
+import { InputOptions, ModuleFormat, OutputOptions, Plugin, rollup, RollupLog, RollupWatchOptions, WarningHandler, WarningHandlerWithDefault, watch } from "rollup";
 import terser from "@rollup/plugin-terser";
 import { Observable } from "rxjs";
 import { Result, ResultBuilder } from "../../../task";
@@ -24,10 +24,23 @@ interface RollupOption {
     output: OutputOptions
 }
 
+function removeNodeModuleWarnings(nextHandler: WarningHandlerWithDefault): WarningHandlerWithDefault {
+    return (warning, defaultHandler) => {
+        if (warning.code === "CIRCULAR_DEPENDENCY" && warning.ids?.at(0)?.includes("node_modules")) {
+            return;
+        }
+
+        if (warning.code === "THIS_IS_UNDEFINED" && warning.id?.includes("node_modules")) {
+            return;
+        }
+
+        return nextHandler(warning, defaultHandler);
+    };
+}
+
 export class Bundler {
     protected rollupOptions: RollupOption[];
 
-    // TODO: Add babel and terser support. Remove production flag.
     public constructor(options: BundlerOptions | BundlerOptions[]) {
         const pkg = getPackageJson();
         const external = [...Object.keys(pkg.dependencies || {}), ...Object.keys(pkg.peerDependencies || {})];
@@ -83,7 +96,7 @@ export class Bundler {
 
             for (const rollupOption of this.rollupOptions) {
                 const input = rollupOption.input;
-                input.onwarn = onWarnWrapper(resultBuilder);
+                input.onwarn = removeNodeModuleWarnings(onWarnWrapper(resultBuilder));
 
                 rollupBuild = await rollup(input);
                 await rollupBuild.write(rollupOption.output);
