@@ -6,7 +6,7 @@ import ora from 'ora';
 
 const progressSpinner = ora();
 
-export class Template {
+export class Generator {
     public constructor(
         /** Template name, eg: project, component */
         private templateName: string,

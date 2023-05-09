@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { WorkspaceConfig, defaultConfig, defaultEnvironments, Environment, Serve } from "../config/workspace";
-import { Template } from "./template/template";
+import { Generator } from "./generator/generator";
 import { mergeDeep } from "../utils/common";
 import { EntryPoint, EntryPointBuildMode } from "./entry-point";
 import { Npm } from "../utils/npm";
@@ -93,7 +93,7 @@ export class Workspace {
     }
 
     public async generate(templateName: string, name: string) {
-        const template = new Template(templateName, this.dirPath);
+        const template = new Generator(templateName, this.dirPath);
         await template.run("new", { name });
     }
 
@@ -249,7 +249,7 @@ export class Workspace {
         let config = { ...defaultConfig, name };
         const environments = defaultEnvironments;
 
-        const templateApplier = new Template("workspace", workspaceDir);
+        const templateApplier = new Generator("workspace", workspaceDir);
         await templateApplier.run(
             "new",
             {
