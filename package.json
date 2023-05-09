@@ -1,7 +1,7 @@
 {
   "name": "@primno/cli",
   "version": "0.7.0",
-  "description": "Command-line interface tool for initializing, building, and deploying Primno projects",
+  "description": "Command-line interface tool for initializing, building, and deploying Primno workspaces",
   "main": "dist/index.mjs",
   "files": [
     "bin",

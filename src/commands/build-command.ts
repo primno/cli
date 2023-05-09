@@ -20,6 +20,8 @@ async function buildAction(options: Options) {
 };
 
 export const buildCommand = new Command('build')
+    .alias("b")
+    .summary("build workspace")
     .option("-p, --production", "production mode", false)
-    .description("build project")
+    .description("compile a primno workspace into a single file into the dist directory.")
     .action(buildAction);

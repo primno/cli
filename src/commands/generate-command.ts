@@ -18,7 +18,7 @@ async function generateAction(type: string, name: string) {
 
 export const generateCommand = new Command('generate')
     .alias('g')
-    .description('generate a new component, service, or module')
+    .description('generate a new component, service, or module.')
     //     .command("component")
     //     .alias('c')
     //     .argument('<name>', 'name of the new component')

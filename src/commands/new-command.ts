@@ -11,6 +11,7 @@ async function newAction(projectName: string) {
 };
 
 export const newCommand = new Command('new')
+    .alias('n')
     .argument('<name>', 'project name')
-    .description('create a new primno project')
+    .description('create a new primno workspace.')
     .action(newAction);

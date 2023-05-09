@@ -10,6 +10,14 @@ export function getProcessDirName() {
 }
 
 /**
+ * Gets the root directory name of the current process.
+ * @returns 
+ */
+export function getRootDirName() {
+    return path.join(getProcessDirName(), "..");
+}
+
+/**
  * Gets the lib directory name.
  * @returns Lib directory name
  */
