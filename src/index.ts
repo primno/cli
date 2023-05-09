@@ -1,13 +1,10 @@
-import chalk from "chalk";
-import figlet from "figlet";
 import { program } from 'commander';
 import { startCommand, newCommand, buildCommand, watchCommand, deployCommand, generateCommand } from './commands';
 import { getPackageJson } from "./utils/package";
 import { getRootDirName } from "./utils/dir";
+import { showError, showPrimnoAsciiArt } from "./utils/display";
 
-console.log(
-    chalk.rgb(238,167,74)(figlet.textSync("Primno CLI"))
-);
+showPrimnoAsciiArt();
 
 const pkg = getPackageJson(getRootDirName());
 
@@ -23,6 +20,6 @@ program
     .addCommand(generateCommand)
     .parseAsync(process.argv)
     .catch((err) => {
-        console.error(chalk.red(err.message));
+        showError(err.message);
         process.exitCode = 1;
     });
