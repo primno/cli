@@ -2,8 +2,18 @@ import { Configuration as PrimnoConfig } from "@primno/core";
 import path from "path";
 
 export enum CodeGeneratorMode {
+    /**
+     * Only build primno.
+     * The entry point will import the entry point from the local file.
+     */
     primnoImportLocal,
+    /**
+     * Build the entry point with primno embedded.
+     */
     primnoEmbedded,
+    /**
+     * Build the entry point without primno.
+     */
     moduleOnly,
 }
 

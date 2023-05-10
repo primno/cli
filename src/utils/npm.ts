@@ -16,8 +16,8 @@ export class Npm {
 
     }
 
-    private spawn(...args: string[]) {
-        const spawnResult = spawnSync(
+    private async spawn(...args: string[]) {
+        const spawnResult = await spawnSync(
             npmCommandLine,
             args,
             {
@@ -38,16 +38,16 @@ export class Npm {
         }
     }
 
-    public install(packages: string[], opt?: NpmOption) {
+    public async install(packages: string[], opt?: NpmOption) {
         if (opt?.dev) {
-            this.spawn("install", ...packages, "--save-dev");
+            await this.spawn("install", ...packages, "--save-dev");
         }
         else {
-            this.spawn("install", ...packages);
+            await this.spawn("install", ...packages);
         }
     }
 
-    public link(packageName: string) {
-        this.spawn("link", packageName);
+    public async link(packageName: string) {
+        await this.spawn("link", packageName);
     }
 }

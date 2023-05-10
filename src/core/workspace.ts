@@ -1,24 +1,20 @@
 import fs from "fs";
 import path from "path";
 import { WorkspaceConfig, defaultConfig, defaultEnvironments, Environment, Serve } from "../config/workspace";
-import { Template } from "./template/template";
+import { Generator } from "./generator/generator";
 import { mergeDeep } from "../utils/common";
 import { EntryPoint, EntryPointBuildMode } from "./entry-point";
 import { Npm } from "../utils/npm";
 import { Server } from "./server/server";
 import { Publisher } from "./deployer/publisher";
 import { map, Observable } from "rxjs";
-import { Action, Task, ResultBuilder } from "../task";
+import { Task, ResultBuilder } from "../task";
 import open from "open";
 import { getEnvironmentUrl } from "../utils/dataverse-client";
 
-interface EntryPointOptions {
-    entryPoint?: string | string[];
-}
-
-export interface BuildOptions extends EntryPointOptions {
+export interface BuildOptions {
     /**
-     * Primno import entry points from local web server.
+     * Mode of building of the entry point.
      */
     mode: EntryPointBuildMode;
     /**
@@ -35,8 +31,8 @@ export interface WatchOptions extends BuildOptions {
 
 }
 
-export interface StartOptions extends EntryPointOptions, ServeOptions {
-    
+export interface StartOptions extends ServeOptions {
+
 }
 
 export interface ServeOptions {
@@ -49,13 +45,16 @@ export interface PublishOptions {
 
 export class Workspace {
     private _config: WorkspaceConfig;
-    private _entryPoints: EntryPoint[];
+    private _entryPoint: EntryPoint;
     private _environments: Environment[];
 
     public constructor(private dirPath: string) {
         this._config = this.loadConfig();
         this._environments = this.loadEnvironments();
-        this._entryPoints = EntryPoint.getEntryPoints(this._config);
+        this._entryPoint = new EntryPoint(
+            path.join(dirPath, this._config.sourceRoot, "app.entry.ts"),
+            this._config
+        );
     }
 
     public get name(): string {
@@ -66,12 +65,12 @@ export class Workspace {
         return this._config;
     }
 
-    public get entryPoints() {
-        return this._entryPoints;
+    public get entryPoint() {
+        return this._entryPoint;
     }
 
     private get environment(): Environment | undefined {
-        return this._environments.find(e => e.name == this.config.deploy?.environment);
+        return this._environments.find(e => e.name == this.config.environment);
     }
 
     public async build(options: BuildOptions) {
@@ -79,27 +78,23 @@ export class Workspace {
     }
 
     private buildTask(options: BuildOptions): Task {
-        const entryPoints = this.searchEntryPoint(options.entryPoint);
-
-        const entryPointsActions = entryPoints.map(ep => <Action>{
-            title: `Build ${ep.name}`,
-            action: async () => {
-                const result = await ep.build(options);
-                if (result.hasErrors) {
-                    throw new Error(result.toString());
-                }
-                return result.toString();
-            }
-        });
-
         return Task.new()
-            .newActions(entryPointsActions)
+            .newAction({
+                title: `Build`,
+                action: async () => {
+                    const result = await this._entryPoint.build(options);
+                    if (result.hasErrors) {
+                        throw new Error(result.toString());
+                    }
+                    return result.toString();
+                }
+            })
             .withConcurrency(3)
     }
 
-    public generate(templateName: string, name: string) {
-        /*const template = new Template(templateName);
-        template.applyTo(this.dirPath, this.config);*/
+    public async generate(templateName: string, name: string) {
+        const template = new Generator(templateName, this.dirPath);
+        await template.run("new", { name });
     }
 
     public async deploy(options: DeployOptions) {
@@ -107,39 +102,32 @@ export class Workspace {
     }
 
     private deployTask(options: DeployOptions): Task {
-        const entryPoints = this.searchEntryPoint(options.entryPoint);
-
         if (this.environment == null) {
             throw new Error("Environment not found");
         }
 
         const webResourcesId: string[] = [];
 
-        const deployEntryPointsActions = entryPoints.map(ep => <Action>{
-            title: `Deploy ${ep.name}`,
-            action: () => new Observable<string>(observer => {
-                ep.deploy({
-                    environment: this.environment as Environment,
-                    deviceCodeCallback: (url, code) => {
-                        observer.next(`Device authentication required. Open ${url} and enter code ${code}`);
-                        open(url);
-                    }
-                }).then((webResourceId) => {
-                    if (webResourceId != null) {
-                        webResourcesId.push(webResourceId);
-                    }
-                    observer.complete();
-                }).catch(err => observer.error(err));
-            })
-        });
-
         return Task.new()
             .withConcurrency(false)
-            .addTaskAsLevel(this.buildTask(options), "Build")
-            .newLevel("Deploy entry points")
-                .newActions(deployEntryPointsActions)
-                .withConcurrency(3)
-            .endLevel()
+            .addSubtasks(this.buildTask(options))
+            .newAction({
+                title: `Upload`,
+                action: () => new Observable<string>(observer => {
+                    this.entryPoint.deploy({
+                        environment: this.environment as Environment,
+                        deviceCodeCallback: (url, code) => {
+                            observer.next(`Device authentication required. Open ${url} and enter code ${code}`);
+                            open(url);
+                        }
+                    }).then((webResourceId) => {
+                        if (webResourceId != null) {
+                            webResourcesId.push(webResourceId);
+                        }
+                        observer.complete();
+                    }).catch(err => observer.error(err));
+                })
+            })
             .addSubtasks(this.publishTask({ webResourcesId }));
     }
 
@@ -154,7 +142,7 @@ export class Workspace {
                         observer.complete();
                         return;
                     }
-                    
+
                     const publisher = new Publisher({
                         webResourcesId,
                         environment: this.environment as Environment,
@@ -164,8 +152,8 @@ export class Workspace {
                         }
                     });
                     publisher.publish()
-                    .then(() => observer.complete())
-                    .catch(err => observer.error(err));
+                        .then(() => observer.complete())
+                        .catch(err => observer.error(err));
                 })
             });
     }
@@ -175,12 +163,10 @@ export class Workspace {
     }
 
     private watchTask(options?: WatchOptions): Task {
-        const entryPoints = this.searchEntryPoint(options?.entryPoint);
-
         return Task.new()
             .newObservable(
                 "Watching",
-                EntryPoint.watch(entryPoints, options)
+                this.entryPoint.watch(options)
                     .pipe(map(e => e.toString()))
             );
     }
@@ -193,13 +179,11 @@ export class Workspace {
         return Task.new()
             //.withConcurrency(true)
             .addTaskAsLevel(this.deployTask({
-                entryPoint: options.entryPoint,
                 production: false,
                 mode: EntryPointBuildMode.primnoImportLocal
             }), "Deploy")
             .addSubtasks(this.serveTask({ openInBrowser: options.openInBrowser }))
             .addSubtasks(this.watchTask({
-                entryPoint: options.entryPoint,
                 mode: EntryPointBuildMode.moduleOnly,
                 production: false,
             }));
@@ -240,21 +224,14 @@ export class Workspace {
             });
     }
 
-    private searchEntryPoint(entryPoint?: string | string[]) {
-        if (entryPoint == null) {
-            return this._entryPoints;
-        }
-
-        if (Array.isArray(entryPoint)) {
-            return this._entryPoints.filter(ep => entryPoint.some(sep => sep === ep.name));
-        }
-
-        return this._entryPoints.filter(e => e.name == entryPoint);
-    }
-
     private loadConfig(): WorkspaceConfig {
-        const content = fs.readFileSync(path.join(this.dirPath, "primno.json"), "utf-8");
-        return mergeDeep(defaultConfig as any, JSON.parse(content));
+        try {
+            const content = fs.readFileSync(path.join(this.dirPath, "primno.json"), "utf-8");
+            return mergeDeep(defaultConfig as any, JSON.parse(content));
+        }
+        catch {
+            throw new Error("Unable to load workspace configuration");
+        }
     }
 
     private loadEnvironments(): Environment[] {
@@ -262,24 +239,29 @@ export class Workspace {
         return JSON.parse(content) ?? [];
     }
 
-    public static create(dirPath: string, name: string): Workspace {
+    public static async create(dirPath: string, name: string): Promise<Workspace> {
         const workspaceDir = path.join(dirPath, name);
 
         if (fs.existsSync(workspaceDir)) {
-            throw new Error("Directory already exists");
+            throw new Error("The workspace already exists");
         }
 
-        fs.mkdirSync(workspaceDir);
-
-        let config = { ...defaultConfig, name: name };
+        let config = { ...defaultConfig, name };
         const environments = defaultEnvironments;
 
-        const templateApplier = new Template("new");
-        templateApplier.applyTo(workspaceDir, config, environments);
+        const templateApplier = new Generator("workspace", workspaceDir);
+        await templateApplier.run(
+            "new",
+            {
+                name,
+                workspaceConfig: JSON.stringify(config, null, 2),
+                environments: JSON.stringify(environments, null, 2)
+            }
+        );
 
-        console.log(`Install dependencies...`);
+        console.log(`Installing packages ...`);
         const npm = new Npm(workspaceDir);
-        npm.install(
+        await npm.install(
             [
                 "tslib",
                 "@types/xrm",
@@ -288,6 +270,7 @@ export class Workspace {
             ],
             { dev: true }
         );
+        console.log(`Packages installed`);
 
         return new Workspace(workspaceDir);
     }

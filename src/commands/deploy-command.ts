@@ -17,6 +17,7 @@ async function deployAction(options: Options) {
 };
 
 export const deployCommand = new Command('deploy')
-    .description('deploy workspace')
+    .summary("build and deploy")
+    .description('build and deploy the workspace to a Power Apps / D365 web resource')
     .option("-p, --production", "production mode", false)
     .action(deployAction);

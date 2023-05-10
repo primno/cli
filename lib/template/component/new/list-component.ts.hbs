@@ -1,0 +1,16 @@
+import { MnComponent, MnOnCommandInvoke, CommandBarEventArg } from '@primno/core';
+
+@MnComponent({
+    scope: {
+        pageType: "{{ pageType }}",
+        {{#if table}}
+        table: "{{ table }}"
+        {{/if}}
+    }
+})
+export class {{ pascalCase name }}Component {
+    @MnOnCommandInvoke("<set command name here>")
+    public onCommandInvoke(eventArg: CommandBarEventArg) {
+        Xrm.Navigation.openAlertDialog({ text: "Hello from {{ name }} component" });
+    }
+}

@@ -1,6 +1,5 @@
 import { Builder, BuilderOptions } from "./builder/builder";
 import path from "path";
-import glob from "glob";
 import { WorkspaceConfig, Environment } from "../config/workspace";
 import { EntryPointDeployer } from "./deployer/entry-point-deployer";
 import { Configuration as PrimnoConfig } from "@primno/core";
@@ -8,6 +7,7 @@ import { CodeGeneratorMode as EntryPointBuildMode } from "./builder/code-generat
 import { Result } from "../task";
 import Mustache from "mustache";
 import { convertToSnakeCase } from "../utils/naming";
+import fs from "fs";
 
 export { EntryPointBuildMode };
 
@@ -36,8 +36,12 @@ export class EntryPoint {
     private _srcPath: string;
 
     public constructor(sourcePath: string, private config: WorkspaceConfig) {
+        if (!fs.existsSync(sourcePath)) {
+            throw new Error(`The source file of the entry point was not found: ${sourcePath}`);
+        }
+
         this._srcPath = sourcePath;
-        this._name = path.basename(sourcePath, ".ts");
+        this._name = path.basename(sourcePath, ".entry.ts");
     }
 
     public get name(){
@@ -59,7 +63,7 @@ export class EntryPoint {
         if (localMode) {
             return {
                 moduleResolverConfig: {
-                    uri: `https://localhost:${port}/${entryPointName}.js`,
+                    uri: `https://localhost:${port}/build/${entryPointName}.js`,
                     type: "import"
                 }
             };
@@ -137,25 +141,15 @@ export class EntryPoint {
             return await deployer.deploy();
     }
 
-    public static watch(entryPoints: EntryPoint[], options?: EntryPointBuildOptions) {       
-        options = options || {
+    public watch(options?: EntryPointBuildOptions) {       
+        const watchOptions = options ?? {
             mode: EntryPointBuildMode.primnoEmbedded,
             production: false,
         };
 
-        const bundlerOpt = EntryPoint.createBundlerOptions(
-            entryPoints,
-            options
-        );
+        const bundlerOpt = EntryPoint.createBundlerOptions([this], watchOptions);
         
         const bundler = new Builder(bundlerOpt);
         return bundler.watch();
-    }
-
-    public static getEntryPoints(config: WorkspaceConfig) {
-        const sourceDir = path.join(config.sourceRoot, config.entryPointDir);
-        return glob
-            .sync("*.ts", { cwd: sourceDir })
-            .map(f => new EntryPoint(path.join(sourceDir, f), config));
     }
 }
