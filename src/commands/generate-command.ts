@@ -18,14 +18,13 @@ async function generateAction(type: string, name: string) {
 
 export const generateCommand = new Command('generate')
     .alias('g')
-    .description('generate a new component, service, or module.')
+    .description('generate a new component (in alpha)')
     //     .command("component")
     //     .alias('c')
     //     .argument('<name>', 'name of the new component')
     //     .summary("generate a new component")
     //     .action(generateAction)
     // .parent!;  
-    .addArgument(new Argument("<type>", "generator type.").choices(["component", "service", "module"]))
-    .argument('<name>', 'name of the new element, can contain a path (e.g. "sales/order")')
-    .description('generate a new component, service, or module')
+    .addArgument(new Argument("<type>", "generator type.").choices(["component"]))
+    .argument('<name>', 'name of the new component, can contain a path (e.g. "sales/order")')
     .action(generateAction);
