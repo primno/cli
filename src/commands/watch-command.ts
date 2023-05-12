@@ -15,5 +15,5 @@ async function watchAction() {
 
 export const watchCommand = new Command('watch')
     .alias("w")
-    .description('Build the workspace and rebuild on file changes')
+    .description('build the workspace and rebuild on file changes')
     .action(watchAction);
