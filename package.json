@@ -2,7 +2,7 @@
   "name": "@primno/cli",
   "version": "0.7.0",
   "description": "Command-line interface tool for initializing, building, and deploying Primno workspaces",
-  "main": "dist/index.mjs",
+  "main": "dist/cli.mjs",
   "files": [
     "bin",
     "lib",
@@ -20,8 +20,8 @@
     "release": "npm run build && changeset publish"
   },
   "bin": {
-    "mn": "./bin/bootstrap.mjs",
-    "primno": "./bin/bootstrap.mjs"
+    "mn": "./bin/mn.mjs",
+    "primno": "./bin/mn.mjs"
   },
   "engines": {
     "node": ">=16",
@@ -55,6 +55,7 @@
     "rollup": "^3.20.2",
     "rxjs": "^7.8.0",
     "selfsigned": "^2.1.1",
+    "semver": "^7.5.1",
     "terser": "^5.16.8",
     "tslib": "^2.5.0",
     "typescript": "^4.9.5"
