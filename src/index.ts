@@ -3,6 +3,14 @@ import { startCommand, newCommand, buildCommand, watchCommand, deployCommand, ge
 import { getPackageJson } from "./utils/package";
 import { getRootDirName } from "./utils/dir";
 import { showError, showPrimnoAsciiArt } from "./utils/display";
+import process from 'process';
+
+// Set process title
+try {
+    process.title = `mn ${process.argv.slice(2).join(' ')}`;
+} catch (_) {
+    process.title = 'mn';
+}
 
 showPrimnoAsciiArt();
 
