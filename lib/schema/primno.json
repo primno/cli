@@ -37,10 +37,6 @@
       "additionalProperties": false,
       "description": "Deployment configuration.",
       "properties": {
-        "environment": {
-          "description": "Environment to deploy to. See primno.env.json.",
-          "type": "string"
-        },
         "solutionUniqueName": {
           "description": "Unique name of the solution to deploy to.",
           "type": "string"
@@ -52,7 +48,6 @@
         }
       },
       "required": [
-        "environment",
         "solutionUniqueName",
         "webResourceNameTemplate"
       ],
@@ -96,6 +91,10 @@
           "description": "Directory of the build output.",
           "type": "string"
         },
+        "environment": {
+          "description": "Name of the Power Apps / D365 environment stored in `primno.env.json`.",
+          "type": "string"
+        },
         "name": {
           "description": "Name of the project.",
           "type": "string"
@@ -117,6 +116,7 @@
         "name",
         "version",
         "sourceRoot",
+        "environment",
         "distDir"
       ],
       "type": "object"
