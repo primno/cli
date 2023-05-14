@@ -30,12 +30,17 @@ export default function(
     //command: Record<string, unknown>
 ): RollupOptions[] {
     return [
-        // CJS
         {
-            input: 'src/index.ts',
+            input: ['src/bootstrap.ts', 'src/cli.ts'],
             plugins,
             external,
-            output: { format: 'esm', file: 'dist/mn.mjs', sourcemap }
+            output: {
+                format: 'esm',
+                dir: 'dist/',
+                chunkFileNames: "shared.mjs",
+                entryFileNames: "[name].mjs",
+                sourcemap
+            }
         }
     ]
 }
