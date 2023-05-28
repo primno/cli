@@ -1,0 +1,91 @@
+{
+  "name": "@primno/cli",
+  "version": "0.8.0",
+  "description": "Command-line interface tool for initializing, building, and deploying Primno workspaces",
+  "main": "dist/cli.mjs",
+  "files": [
+    "bin",
+    "lib",
+    "dist",
+    "test"
+  ],
+  "type": "module",
+  "repository": "github:primno/cli",
+  "scripts": {
+    "start": "rollup -c --configPlugin typescript && node dist/index.mjs",
+    "build": "rollup -c --configPlugin typescript",
+    "watch": "rollup -cw --configPlugin typescript",
+    "test": "jest",
+    "gen-schema": "npx ts-json-schema-generator -p ./src/config/workspace.ts -t WorkspaceConfig -o ./lib/schema/primno.json -f ./tsconfig.json",
+    "release": "npm run build && changeset publish"
+  },
+  "bin": {
+    "mn": "./bin/mn.mjs",
+    "primno": "./bin/mn.mjs"
+  },
+  "engines": {
+    "node": ">=16",
+    "npm": ">=7"
+  },
+  "author": "Xavier Monin",
+  "license": "MIT",
+  "dependencies": {
+    "@babel/core": "^7.21.4",
+    "@babel/preset-env": "^7.21.4",
+    "@primno/dataverse-auth": "0.6.1",
+    "@primno/dataverse-client": "^0.9.0",
+    "@rollup/plugin-babel": "^6.0.3",
+    "@rollup/plugin-commonjs": "^24.0.1",
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "@rollup/plugin-terser": "^0.4.0",
+    "@rollup/plugin-typescript": "^11.0.0",
+    "@rollup/plugin-virtual": "^3.0.1",
+    "chalk": "^5.2.0",
+    "commander": "^10.0.0",
+    "core-js": "^3.29.1",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "glob": "^9.3.0",
+    "inquirer": "^9.2.1",
+    "listr2": "^5.0.8",
+    "mustache": "^4.2.0",
+    "node-plop": "^0.31.1",
+    "open": "^8.4.2",
+    "ora": "^6.3.0",
+    "rollup": "^3.20.2",
+    "rxjs": "^7.8.0",
+    "selfsigned": "^2.1.1",
+    "semver": "^7.5.1",
+    "terser": "^5.16.8",
+    "tslib": "^2.5.0",
+    "typescript": "^4.9.5"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.26.1",
+    "@types/cors": "^2.8.12",
+    "@types/express": "^4.17.17",
+    "@types/figlet": "^1.5.5",
+    "@types/glob": "^8.1.0",
+    "@types/inquirer": "^9.0.3",
+    "@types/jest": "^29.5.0",
+    "@types/mustache": "^4.2.2",
+    "@types/node": "^18.13.0",
+    "@types/rollup__plugin-virtual": "^2.0.1",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.0.5",
+    "ts-node": "^10.9.1"
+  },
+  "peerDependencies": {
+    "@primno/core": "^0.8.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "keywords": [
+    "Primno",
+    "CLI",
+    "Command-line",
+    "Devtools"
+  ]
+}
