@@ -1,4 +1,4 @@
-import { getTemplateDirName } from '../../utils/dir';
+import { getSchematicsDirName } from '../../utils/dir';
 import inquirer from "inquirer";
 import nodePlop from "node-plop";
 import path from 'path';
@@ -26,7 +26,7 @@ export class Generator {
      * @param variables Variables to pass to the generator
      */
     public async run(actionName: string, variables: Record<string, string>) {
-        const plopFile = path.join(getTemplateDirName(this.templateName), "plopfile.js");
+        const plopFile = path.join(getSchematicsDirName(this.templateName), "plopfile.js");
         const plop = await nodePlop(
             plopFile,
             {

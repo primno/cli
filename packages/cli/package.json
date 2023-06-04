@@ -16,8 +16,7 @@
     "build": "rollup -c --configPlugin typescript",
     "watch": "rollup -cw --configPlugin typescript",
     "test": "jest",
-    "gen-schema": "npx ts-json-schema-generator -p ./src/config/workspace.ts -t WorkspaceConfig -o ./lib/schema/primno.json -f ./tsconfig.json",
-    "release": "npm run build && changeset publish"
+    "gen-schema": "npx ts-json-schema-generator -p ./src/config/workspace.ts -t WorkspaceConfig -o ./lib/schema/primno.json -f ./tsconfig.json"
   },
   "bin": {
     "mn": "./bin/mn.mjs",
@@ -30,6 +29,7 @@
   "author": "Xavier Monin",
   "license": "MIT",
   "dependencies": {
+    "@primno/schematics": "^0.8.0",
     "@babel/core": "^7.21.4",
     "@babel/preset-env": "^7.21.4",
     "@primno/dataverse-auth": "0.6.1",

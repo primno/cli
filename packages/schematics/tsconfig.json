@@ -7,7 +7,7 @@
       "strict": true,
       "skipLibCheck": true,
       // "exactOptionalPropertyTypes": true,
-      "forceConsistentCasingInFileNames": true,
+      "forceConsistentCasingInFileNames": true
     },
     "exclude": ["node_modules", "build", "dist", "lib"]
   }

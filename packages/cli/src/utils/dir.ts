@@ -1,5 +1,6 @@
 import path from "path";
 import { fileURLToPath } from 'url';
+import { createRequire } from "module";
 
 /**
  * Gets the directory name of the current process.
@@ -25,22 +26,32 @@ export function getLibDirName() {
     return path.join(getProcessDirName(), "..", "lib");
 }
 
+export function getPackageDirName(packageName: string) {
+    const require = createRequire(import.meta.url);
+
+    const packageFile = path.join(packageName, "package.json");
+    const packageLocation = require.resolve(packageFile);
+    return path.dirname(packageLocation);
+}
+
 /**
- * Gets the template directory name.
+ * Gets the schematics directory name.
  * @param templateName Template name. If not specified, the root directory of the templates is returned.
  * @returns Template directory name
  */
-export function getTemplateDirName(templateName?: string) {
+export function getSchematicsDirName(templateName?: string) {
+    const schematicsDir = path.join(getPackageDirName("@primno/schematics"), "lib");
+   
     if (templateName != null) {
-        return path.join(getLibDirName(), "template", templateName);
+        return path.join(schematicsDir, templateName);
     }
     else {
-        return path.join(getLibDirName(), "template");
+        return schematicsDir;
     }
 }
 
 /**
- * Gets the schema directory name.
+ * Gets the schema directory name (JSON schema for config).
  * @param schemaName Schema name. If not specified, the root directory of the schemas is returned.
  * @returns Schema directory name.
  */
