@@ -40,7 +40,7 @@ export function getPackageDirName(packageName: string) {
  * @returns Template directory name
  */
 export function getSchematicsDirName(templateName?: string) {
-    const schematicsDir = path.join(getPackageDirName("@primno/schematics"), "lib");
+    const schematicsDir = path.join(getPackageDirName("@primno/schematics"), "dist", "lib");
    
     if (templateName != null) {
         return path.join(schematicsDir, templateName);

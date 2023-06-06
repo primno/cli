@@ -1,11 +1,13 @@
 import path from 'path';
 import fs from 'fs';
+import { NodePlopAPI } from 'node-plop';
+// import {  } from "typescript";
 
 /**
  * Search the near module (file with .module.ts extension) in the path.
  * The search is done right to left.
  */
-function searchNearModuleFromPath(/** @type { string } */ searchedPath) {
+function searchNearModuleFromPath(searchedPath: string) {
     const normalizedPath = path.normalize(searchedPath);
     const pathParts = normalizedPath.split(path.sep);
     
@@ -30,9 +32,13 @@ function searchNearModuleFromPath(/** @type { string } */ searchedPath) {
 }
 
 export default function (
-    /** @type { import("node-plop").NodePlopAPI } */
-    plop
+    plop: NodePlopAPI
     ) {
+    // plop.setActionType("appendInDeclaration", (answers, config, plop) => {
+    //     const { modulePath, componentPath } = config;
+    //     const relativePath = path.relative(path.dirname(modulePath), componentPath);
+    // };
+
     plop.setGenerator('new', {
         description: 'Create a new component',
         prompts: [
@@ -51,7 +57,7 @@ export default function (
                 message: 'Which table(s) are you targeting? (eg. account, contact)'
             },
         ],
-        actions: (/** @type { { name: string; pageType: "list" | "record", table: string } } */ data) => {
+        actions: (data: any) => {
             const namePath = path.parse(data.name);
             data.name = namePath.base;
             data.subPath = namePath.dir;
@@ -63,10 +69,6 @@ export default function (
             const componentPath = plop.renderString("src/{{pageType}}/{{subPath}}/{{dashCase name}}/{{dashCase name}}.component.ts", data);
             const modulePath = searchNearModuleFromPath(componentPath);
 
-            const absoluteModuleDir = path.posix.resolve(path.posix.dirname(modulePath));
-            const absoluteComponentPath = path.posix.resolve(componentPath);
-            data.moduleToComponentPath = path.posix.relative(absoluteModuleDir, absoluteComponentPath);
-
             return [
                 {
                     type: 'add',
@@ -75,17 +77,9 @@ export default function (
                     destination: 'src',
                 },
                 {
-                    type: 'append',
-                    path: modulePath,
-                    pattern: /import\s.*\sfrom\s.*;/,
-                    template: `import { {{pascalCase name}}Component } from './{{moduleToComponentPath}}';`,
-                }
-                ,
-                {
-                    type: 'append',
-                    path: modulePath,
-                    pattern: /declarations:\s*\[/,
-                    template: `        {{pascalCase name}}Component,`,
+                    type: 'addDeclaration',
+                    modulePath: modulePath,
+                    componentPath: componentPath 
                 }
             ]
         }

@@ -1,7 +1,7 @@
+import { NodePlopAPI } from "node-plop";
 
 export default function (
-    /** @type { import("node-plop").NodePlopAPI } */
-    plop
+    plop: NodePlopAPI
     ) {
     plop.setGenerator('new', {
         description: 'Create a new workspace',
